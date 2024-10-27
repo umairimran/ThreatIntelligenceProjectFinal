@@ -1,0 +1,9 @@
+python-dotenv
+requests
+OTXv2
+pandas
+flask
+db-sqlite3
+tinydb
+timedelta
+flask_caching

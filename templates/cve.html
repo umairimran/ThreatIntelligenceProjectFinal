@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVE Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">CVE Details</h1>
+        
+        <!-- General Sections -->
+        <div class="card mb-4">
+            <div class="card-header">General Information</div>
+            <div class="card-body">
+                <p><strong>Description:</strong> {{ general_description }}</p>
+                <p><strong>CVEs:</strong> {{ general_cve }}</p>
+                <p><strong>Date Created:</strong> {{ general_date_created }}</p>
+                <p><strong>Date Modified:</strong> {{ general_date_modified }}</p>
+                <p><strong>Seen in Wild:</strong> {{ general_seen_wild }}</p>
+                <p><strong>References:</strong> <a href="{{ general_references }}">{{ general_references }}</a></p>
+            </div>
+        </div>
+
+        <!-- MITRE and NVD Links -->
+        <div class="card mb-4">
+            <div class="card-header">Resources</div>
+            <div class="card-body">
+                <p><strong>MITRE URL:</strong> <a href="{{ general_mitre_url }}">{{ general_mitre_url }}</a></p>
+                <p><strong>NVD URL:</strong> <a href="{{ general_nvd_url }}">{{ general_nvd_url }}</a></p>
+            </div>
+        </div>
+
+        <!-- Indicators -->
+        <div class="card mb-4">
+            <div class="card-header">Indicators</div>
+            <div class="card-body">
+                <p><strong>Indicator Type Title:</strong> {{ general_type_title }}</p>
+                <p><strong>Indicator:</strong> {{ general_indicator }}</p>
+                <p><strong>Base Indicator ID:</strong> {{ general_base_indicator_id }}</p>
+                <p><strong>Base Indicator Type:</strong> {{ general_base_indicator_type }}</p>
+            </div>
+        </div>
+
+        <!-- Pulse Information -->
+        <div class="card mb-4">
+            <div class="card-header">Pulse Information</div>
+            <div class="card-body">
+                <p><strong>Pulse Info Count:</strong> {{ general_pulse_info_count }}</p>
+                <p><strong>Pulses:</strong> {{ general_pulse_info_pulses }}</p>
+                <p><strong>References:</strong> {{ general_pulse_info_references }}</p>
+                <p><strong>Related AlienVault Malware Families:</strong> {{ general_pulse_info_related_alienvault_malware_families }}</p>
+                <p><strong>Related AlienVault Industries:</strong> {{ general_pulse_info_related_alienvault_industries }}</p>
+                <p><strong>Related Other Adversaries:</strong> {{ general_pulse_info_related_other_adversary }}</p>
+                <p><strong>Related Other Malware Families:</strong> {{ general_pulse_info_related_other_malware_families }}</p>
+                <p><strong>Related Other Industries:</strong> {{ general_pulse_info_related_other_industries }}</p>
+                <p><strong>False Positive:</strong> {{ general_false_positive }}</p>
+            </div>
+        </div>
+
+        <!-- CVSS Metrics -->
+        <div class="card mb-4">
+            <div class="card-header">CVSS Metrics</div>
+            <div class="card-body">
+                <h5>CVSS v3.1</h5>
+                <p><strong>Attack Complexity:</strong> {{ general_cvssv3_attack_complexity }}</p>
+                <p><strong>Attack Vector:</strong> {{ general_cvssv3_attack_vector }}</p>
+                <p><strong>Availability Impact:</strong> {{ general_cvssv3_availability_impact }}</p>
+                <p><strong>Base Score:</strong> {{ general_cvssv3_base_score }}</p>
+                <p><strong>Base Severity:</strong> {{ general_cvssv3_base_severity }}</p>
+                <p><strong>Confidentiality Impact:</strong> {{ general_cvssv3_confidentiality_impact }}</p>
+                <p><strong>Integrity Impact:</strong> {{ general_cvssv3_integrity_impact }}</p>
+                <p><strong>Privileges Required:</strong> {{ general_cvssv3_privileges_required }}</p>
+                <p><strong>Scope:</strong> {{ general_cvssv3_scope }}</p>
+                <p><strong>User Interaction:</strong> {{ general_cvssv3_user_interaction }}</p>
+                <p><strong>Version:</strong> {{ general_cvssv3_version }}</p>
+                <p><strong>Exploitability Score:</strong> {{ general_cvssv3_exploitability_score }}</p>
+                <p><strong>Impact Score:</strong> {{ general_cvssv3_impact_score }}</p>
+
+                <h5 class="mt-4">CVSS v2.0</h5>
+                <p><strong>Access Complexity:</strong> {{ general_cvssv2_access_complexity }}</p>
+                <p><strong>Access Vector:</strong> {{ general_cvssv2_access_vector }}</p>
+                <p><strong>Authentication:</strong> {{ general_cvssv2_authentication }}</p>
+                <p><strong>Availability Impact:</strong> {{ general_cvssv2_availability_impact }}</p>
+                <p><strong>Base Score:</strong> {{ general_cvssv2_base_score }}</p>
+                <p><strong>Confidentiality Impact:</strong> {{ general_cvssv2_confidentiality_impact }}</p>
+                <p><strong>Integrity Impact:</strong> {{ general_cvssv2_integrity_impact }}</p>
+                <p><strong>Version:</strong> {{ general_cvssv2_version }}</p>
+            </div>
+        </div>
+
+        <!-- Exploits and EPSs -->
+        <div class="card mb-4">
+            <div class="card-header">Exploits and EPSs</div>
+            <div class="card-body">
+                <p><strong>Exploits:</strong> {{ general_exploits }}</p>
+                <p><strong>EPSs:</strong> {{ general_epss }}</p>
+            </div>
+        </div>
+
+        <!-- Configurations -->
+        <div class="card mb-4">
+            <div class="card-header">Configurations</div>
+            <div class="card-body">
+                <p><strong>CVE Data Version:</strong> {{ general_configurations_cve_data_version }}</p>
+                <p><strong>Nodes:</strong> {{ general_configurations_nodes }}</p>
+            </div>
+        </div>
+
+        <!-- CWE Information -->
+        <div class="card mb-4">
+            <div class="card-header">Common Weakness Enumeration (CWE)</div>
+            <div class="card-body">
+                <p><strong>CWE:</strong> {{ general_cwe }}</p>
+            </div>
+        </div>
+
+        <!-- Products Information -->
+        <div class="card mb-4">
+            <div class="card-header">Products Affected</div>
+            <div class="card-body">
+                <p><strong>Products:</strong> {{ general_products }}</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Manage Users</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/fonts/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/Apple-Navbar-Cinel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/Login-with-overlay-image.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/Pretty-Search-Form-.css') }}">
+    
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="/">
+                    <div class="sidebar-brand-icon rotate-n-15"></div>
+                    <div class="sidebar-brand-text mx-3"><span>THREAT LAB ADMIN</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+
+                    <li class="nav-item"></li>
+                    <li class="nav-item"><a class="nav-link active" href="/manage_users"><i class="fas fa-table"></i><span><strong>Manage Enviorments</strong></span></a></li>
+
+                </ul>
+                <div class="text-center d-none d-md-inline"></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <header></header>
+                        <form class="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
+                            <div class="input-group"></div>
+                        </form>
+                        <h3 class="text-dark mb-0">Manage Users</h3>
+                    </div>
+                </nav><div class="container-fluid">
+    <!-- User List and Filter Table Section -->
+    <form action="/create_new_user" method="POST" class="bg-dark text-white p-4">
+        <!-- Input Fields -->
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="userName">Username</label>
+                    <input type="text" class="form-control bg-secondary text-white" id="userName" name="username" placeholder="Enter username" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" class="form-control bg-secondary text-white" id="userEmail" name="email" placeholder="Enter email" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="userPassword">Password</label>
+                    <input type="password" class="form-control bg-secondary text-white" id="userPassword" name="password" placeholder="Enter password" required>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="userSystem">System</label>
+                    <input type="text" class="form-control bg-secondary text-white" id="userSystem" name="system" placeholder="Enter System">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="userService">Service</label>
+                    <input type="text" class="form-control bg-secondary text-white" id="userService" name="service" placeholder="Enter Service">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="userIndicator">Service 2</label>
+                    <input type="text" class="form-control bg-secondary text-white" id="userIndicator" name="indicator" placeholder="Enter Service 2">
+                </div>
+            </div>
+        </div>
+    
+        <div class="row mt-3">
+            <div class="col-md-12 text-right">
+                <button type="submit" class="btn btn-primary">Save New User</button>
+            </div>
+        </div>
+    </form>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h4>User List</h4>
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>User ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Password</th>
+                        <th>System</th>
+                        <th>Service</th>
+                        <th>Service 2</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Placeholder rows for users; replace with data from your backend -->
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user[0] }}</td>  <!-- User ID -->
+                        <td>
+                            <form action="/edit_user" method="POST" style="display:inline;">
+                                <input type="hidden" name="user_id" value="{{ user[0] }}">
+                                <input type="text" class="form-control" name="username" value="{{ user[1] }}" required> <!-- Editable Username -->
+                        </td>  
+                        <td>
+                                <input type="email" class="form-control" name="email" value="{{ user[3] }}" required> <!-- Email -->
+                        </td>  
+                        <td>
+                                <input type="text" class="form-control" placeholder="Enter Password" name="password" value="{{user[2]}}" required> <!-- Password -->
+                        </td>  
+                        <td>
+                                <input type="text" class="form-control" placeholder="Enter System" name="system" value="{{ user[4] }}" required> <!-- System -->
+                        </td>  
+                        <td>
+                                <input type="text" class="form-control" placeholder="Enter Service" name="service" value="{{ user[5] }}" required> <!-- Service -->
+                        </td>  
+                        <td>
+                                <input type="text" class="form-control" placeholder="Enter Service 2" name="indicator" value="{{ user[6] }}" required> <!-- Indicator -->
+                        </td>  
+                        <td>
+                                <button type="submit" class="btn btn-warning btn-sm">Save</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="/delete_user" method="POST" style="display:inline;">
+                                <input type="hidden" name="user_id" value="{{ user[0] }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+
+                     <!-- Repeat rows dynamically for other users as needed -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+  
+    
+
+</div>
+
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>THREAT LABS</span></div>
+                </div>
+            </footer>
+        </div>
+        <div class="text-center mb-2">
+         
+            <a id="scroll-top" class="border rounded d-inline scroll-to-top btn btn-primary" href="#page-top">
+                <i class="fas fa-angle-up"></i>
+            </a>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bs-init.js') }}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,384 @@
+{% extends "html_base.html" %}
+{% block content %}
+<body>
+    <nav class="navbar navbar-dark navbar-expand-md fixed-top bg-dark">
+        <div class="container">
+            <nav class="navbar navbar-dark navbar-expand-md fixed-top bg-dark">
+                <div class="container">
+                    <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
+                        <span class="visually-hidden">Toggle navigation</span>
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <a href="/search_indicators">THREAT LAB</a>
+                    <div class="collapse navbar-collapse" id="navcol-1">
+                        <ul class="navbar-nav flex-grow-1 justify-content-between">
+                            <li class="nav-item"><a class="nav-link" href="#"></a></li>
+
+                            <li class="nav-item"><a class="nav-link" href="/search_indicators">Indicators</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/search_urls">URL</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/search_domains">DOMAIN</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/search_ip4">IPv4</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/search_hostnames">HOST NAME</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/logout">Login</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+    
+       
+        </div>
+    </nav>
+    <section class="py-4 py-xl-5"><div class="container-fluid" style="max-width: 1400px;padding: 0;">
+    <div class="text-white bg-black border rounded border-0 border-primary d-flex flex-column justify-content-center flex-lg-row p-3">
+        <div class="pb-3 pb-lg-1">
+            <h2 class="fw-bold mb-1"> {{general_indicator}}</h2>
+            <p class="mb-0">Pulse Count : {{general_pulse_info_count}}</p>
+        </div>
+
+    </div>
+</div>
+</section>
+    <div class="container">
+        <div class="row"><div class="col-md-6">
+    <div class="side bg-dark text-light p-4"> <!-- Added padding -->
+        <div class="content col-12 overview">
+            <div class="container mt-4">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        <h2 class="section-heading">General Description</h2>
+                        <div class="border p-3 bg-dark text-white" style="max-height: 200px; overflow-y: auto;">
+                            <p class="mb-0">{{ general_description | replace('\n', ' ') | replace('\r', ' ') | replace('<p>', '') | replace('</p>', '') | replace('<strong>', '') | replace('</strong>', '') }}</p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="details-container content">
+            <div class="data-block">
+                <p class="cwe">
+                    <span class="ref-label label-text">CWE: </span>
+                    <span class="nowrap ellipsis pull-right">
+                        <a target="_blank" href="https://cwe.mitre.org/data/definitions/CWE.html" class="text-success">{{general_mitre_url}}</a> <!-- Green link -->
+                    </span>
+                </p>
+                <p>
+                    <span class="ref-label label-text">CVE: </span>
+                    <span class="nowrap ellipsis pull-right">{{general_indicator}}</span>
+                </p>
+                <p>
+                    <span class="ref-label label-text">Creation Date: </span>
+                    <span class="nowrap ellipsis pull-right">{{general_date_created}}</span>
+                </p>
+                <p>
+                    <span class="ref-label label-text">Last Modified Date: </span>
+                    <span class="nowrap ellipsis pull-right">{{general_date_modified}}</span>
+                </p>
+                <p>
+                    <i class="fa fa-warning text-danger"></i> <!-- Red warning icon -->
+                    <span id="seen-wild" class="ref-label label-text">Threat Labs has seen this actively exploited in the  Wild :{{general_seen_wild}}</span>
+                </p>
+            </div>
+        </div>
+<br>
+        <br>
+        <br>
+        <div class="content">
+            <div class="overall-container bg-black p-4"> <!-- Black background with padding -->
+                <h2 class="section-heading">Exploit Activity</h2>
+                <div class="contents">
+                    <div class="section no-padding threat-actors">
+                        <div class="header">Access Vector: {{general_cvssv2_access_vector}}</div>
+                        <div class="item">
+                            <div class="title">User-Created Pulses: {{general_pulse_info_count}}</div>
+                          
+                        </div>
+                        <div class="item">
+                            <div class="title">Other Malware Family: {{general_pulse_info_related_alienvault_malware_families}}</div>
+                          
+                        </div>
+
+                    </div>
+
+                    <div class="section no-padding">
+                        <div class="header">Industries Targeted:</div>
+                        <div class="item">
+                        
+                            <div class="value">
+                                {% for each in general_pulse_info_related_other_industries %}
+                                    <span class="text-success" style="cursor: pointer;" title="This link is not clickable">{{ each }}</span>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End of overall-container -->
+        </div>
+        <br>
+        <br>
+        <br>
+    </div> <!-- End of side -->
+</div> <!-- End of col-md-6 -->
+<div class="col-md-6">
+    <div class="side bg-dark text-light p-3"> <!-- Added bg-dark and text-light classes -->
+        <div class="content col-12 no-padding ng-star-inserted">
+            <h2 class="section-heading">CVSS V2 Severity</h2>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Access-Complexity: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_access_complexity}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Access-Vector: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_access_vector}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Authentication: </span>
+            <span class="nowrap ellipsis pull-right">{{general_cvssv2_authentication}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Availability-Impact: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_availability_impact}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Score: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_base_score}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Confidentiality-Impact: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_confidentiality_impact}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Integrity-Impact: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_integrity_impact}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Exploitability Score: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_exploitability_score}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Impact Score: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_impact_score}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Privilige All: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_obtain_all_privilege}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Privilige Other: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_obtain_other_privilege}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Severity: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_severity}}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">User Interaction Required: </span>
+                <span class="nowrap ellipsis pull-right">{{general_cvssv2_user_interaction_required}}</span>
+            </p>
+        </div>
+
+        <div class="content col-12 no-padding ng-star-inserted">
+            <h2 class="section-heading">CVSS V3 Severity</h2>
+            
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Attack Complexity: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_attack_complexity }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Attack Vector: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_attack_vector }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Availability Impact: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_availability_impact }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Base Score: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_base_score }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Base Severity: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_base_severity }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Confidentiality Impact: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_confidentiality_impact }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Integrity Impact: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_integrity_impact }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Privileges Required: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_privileges_required }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Scope: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_scope }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">User Interaction: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_user_interaction }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Exploitability Score: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_exploitability_score }}</span>
+            </p>
+            <p class="ng-star-inserted">
+                <span class="ref-label label-text">Impact Score: </span>
+                <span class="nowrap ellipsis pull-right">{{ general_cvssv3_impact_score }}</span>
+            </p>
+        </div>
+        
+    </div>
+</div>
+</div>
+    </div>
+    <div class="container">
+        <div class="row"><div class="col-md-12">
+<otx-cve-analysis-tab _ngcontent-rtf-c266="" _nghost-rtf-c262="" class="ng-star-inserted">
+    <div _ngcontent-rtf-c262="" id="nidsList" class="section hide" bis_skin_checked="1">
+        <otx-ioc-associated-nids _ngcontent-rtf-c262="" class="col-xs-12 no-margin no-padding row" _nghost-rtf-c177="">
+            <div _ngcontent-rtf-c177="" id="nidsSubscriptionBlock" class="full-width ng-star-inserted" bis_skin_checked="1">
+                <div _ngcontent-rtf-c177="" bis_skin_checked="1">
+                    <h2 _ngcontent-rtf-c177="" class="section-heading">Network IDS Signature Hits</h2>
+                </div>
+                <div _ngcontent-rtf-c177="" class="code well bw" bis_skin_checked="1"> 
+                    Network IDS Signature Hits only available to members of LevelBlue Labs Threat Intelligence Subscription 
+                </div>
+            </div>
+        </otx-ioc-associated-nids>
+    </div>
+    <div _ngcontent-rtf-c262="" id="files" class="section" bis_skin_checked="1">
+        <otx-ioc-associated-files _ngcontent-rtf-c262="" _nghost-rtf-c176="">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>External Source</th>
+                                <th>Link</th>
+                                <th>Type</th>
+                                <th>Tags</th>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ref in general_references %}
+                            <tr>
+                                <td class="text-wrap">{{ ref['external_source'] }}</td>
+                                <td class="text-wrap">
+                                    <a href="{{ ref['href'] }}" class="text-truncate d-block" style="max-width: 150px;">{{ ref['name'] }}</a>
+                                </td>
+                                <td class="text-wrap">{{ ref['type'] if ref['type'] else 'None' }}</td>
+                                <td class="text-wrap">{{ ref['tags'] | join(', ') }}</td>
+                                <td class="text-wrap" style="max-width: 150px;">
+                                    <a href="{{ ref['href'] }}" class="text-truncate d-block" style="max-width: 150px;">{{ ref['name'] }}</a>
+                                </td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </otx-ioc-associated-files>
+    </div>
+    <div _ngcontent-rtf-c262="" id="references" class="section" bis_skin_checked="1">
+        <otx-references-table _ngcontent-rtf-c262="" _nghost-rtf-c261=""></otx-references-table>
+    </div>
+</otx-cve-analysis-tab>
+
+        
+
+</div></div>
+    </div>
+    <div class="container"><div class="row">
+    <div class="row">
+        <h2 class="section-heading">Exploits</h2>
+        <div class="table-responsive">
+            <table id="exploitTable" class="table table-bordered table-striped w-100">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Author</th>
+                        <th>CVE</th>
+                        <th>Description</th>
+                        <th>URL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exploit in general_exploits %}
+                    <tr>
+                        <td><a href="{{ exploit['url'] }}" target="_blank">{{ exploit['name'] }}</a></td>
+                        <td>{{ exploit['author'] }}</td>
+                        <td>{{ exploit['cve'] }}</td>
+                        <td>{{ exploit['description'] }}</td>
+                        <td><a href="{{ exploit['url'] }}" target="_blank">View</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+</div>
+</div>
+    <div class="container"><div class="row">
+    <div class="row">
+        <h2 class="section-heading col-12">Targeted Products</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>CPE Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in general_products %}
+                    <tr>
+                        <td>{{ product }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+</div></div>
+    <div class="container"><div class="row">
+<div class="col-md-12 no-margin no-padding row">
+    <h2 id="products-header" class="section-heading col-12">Configuration Nodes</h2>
+    <table class="table table-dark table-striped">
+        <thead>
+
+            <tr>
+                <th>CPE 2.3 URI</th>
+                <th>Version End Excluding</th>
+                <th>Vulnerable</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cpe in general_configurations_nodes[0] %}  {# Access the first element of the outer list #}
+                <tr>
+                    <td>{{ cpe.cpe23Uri }}</td>
+                    <td>{{ cpe.versionEndExcluding if 'versionEndExcluding' in cpe else 'N/A' }}</td>
+                    <td>{{ cpe.vulnerable }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        
+    </table>
+    
+</div>
+
+</div></div>
+<script src="{{ url_for('static', filename='/js/bootstrap.min.js') }}"></script>
+</body>
+
+{% endblock %}
