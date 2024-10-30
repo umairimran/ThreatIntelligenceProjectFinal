@@ -155,7 +155,29 @@ def cve_page():
         # Define a helper function to safely get values from the DataFrame
         def safe_get(column_name):
             return df[column_name][0] if column_name in df.columns else ''
-
+    
+        # Function to generate random values for each specific CVSS V2 field
+        def get_random_value(column_name):
+            random_values = {
+                'general.cvssv2.acInsufInfo': random.choice([True, False]),
+                'general.cvssv2.cvssV2.accessComplexity': random.choice(['LOW', 'MEDIUM', 'HIGH']),
+                'general.cvssv2.cvssV2.accessVector': random.choice(['LOCAL', 'ADJACENT_NETWORK', 'NETWORK']),
+                'general.cvssv2.cvssV2.authentication': random.choice(['NONE', 'SINGLE', 'MULTIPLE']),
+                'general.cvssv2.cvssV2.availabilityImpact': random.choice(['NONE', 'PARTIAL', 'COMPLETE']),
+                'general.cvssv2.cvssV2.baseScore': round(random.uniform(0, 10), 1),
+                'general.cvssv2.cvssV2.confidentialityImpact': random.choice(['NONE', 'PARTIAL', 'COMPLETE']),
+                'general.cvssv2.cvssV2.integrityImpact': random.choice(['NONE', 'PARTIAL', 'COMPLETE']),
+                'general.cvssv2.cvssV2.version': '2.0',
+                'general.cvssv2.exploitabilityScore': round(random.uniform(0, 10), 1),
+                'general.cvssv2.impactScore': round(random.uniform(0, 10), 1),
+                'general.cvssv2.obtainAllPrivilege': random.choice([True, False]),
+                'general.cvssv2.obtainOtherPrivilege': random.choice([True, False]),
+                'general.cvssv2.obtainUserPrivilege': random.choice([True, False]),
+                'general.cvssv2.severity': random.choice(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+                'general.cvssv2.userInteractionRequired': random.choice([True, False]),
+            }
+            return random_values.get(column_name, '')
+        
         general_sections = safe_get('general.sections')
         general_mitre_url = safe_get('general.mitre_url')
         general_nvd_url = safe_get('general.nvd_url')
@@ -181,22 +203,23 @@ def cve_page():
         general_cvss_confidentiality_impact = safe_get('general.cvss.Confidentiality-Impact')
         general_cvss_integrity_impact = safe_get('general.cvss.Integrity-Impact')
         general_cvss_vector_string = safe_get('general.cvss.vectorString')
-        general_cvssv2_ac_insuf_info = safe_get('general.cvssv2.acInsufInfo')
-        general_cvssv2_access_complexity = safe_get('general.cvssv2.cvssV2.accessComplexity')
-        general_cvssv2_access_vector = safe_get('general.cvssv2.cvssV2.accessVector')
-        general_cvssv2_authentication = safe_get('general.cvssv2.cvssV2.authentication')
-        general_cvssv2_availability_impact = safe_get('general.cvssv2.cvssV2.availabilityImpact')
-        general_cvssv2_base_score = safe_get('general.cvssv2.cvssV2.baseScore')
-        general_cvssv2_confidentiality_impact = safe_get('general.cvssv2.cvssV2.confidentialityImpact')
-        general_cvssv2_integrity_impact = safe_get('general.cvssv2.cvssV2.integrityImpact')
-        general_cvssv2_version = safe_get('general.cvssv2.cvssV2.version')
-        general_cvssv2_exploitability_score = safe_get('general.cvssv2.exploitabilityScore')
-        general_cvssv2_impact_score = safe_get('general.cvssv2.impactScore')
-        general_cvssv2_obtain_all_privilege = safe_get('general.cvssv2.obtainAllPrivilege')
-        general_cvssv2_obtain_other_privilege = safe_get('general.cvssv2.obtainOtherPrivilege')
-        general_cvssv2_obtain_user_privilege = safe_get('general.cvssv2.obtainUserPrivilege')
-        general_cvssv2_severity = safe_get('general.cvssv2.severity')
-        general_cvssv2_user_interaction_required = safe_get('general.cvssv2.userInteractionRequired')
+        # Assign random values directly using get_random_value function
+        general_cvssv2_ac_insuf_info = get_random_value('general.cvssv2.acInsufInfo')
+        general_cvssv2_access_complexity = get_random_value('general.cvssv2.cvssV2.accessComplexity')
+        general_cvssv2_access_vector = get_random_value('general.cvssv2.cvssV2.accessVector')
+        general_cvssv2_authentication = get_random_value('general.cvssv2.cvssV2.authentication')
+        general_cvssv2_availability_impact = get_random_value('general.cvssv2.cvssV2.availabilityImpact')
+        general_cvssv2_base_score = get_random_value('general.cvssv2.cvssV2.baseScore')
+        general_cvssv2_confidentiality_impact = get_random_value('general.cvssv2.cvssV2.confidentialityImpact')
+        general_cvssv2_integrity_impact = get_random_value('general.cvssv2.cvssV2.integrityImpact')
+        general_cvssv2_version = get_random_value('general.cvssv2.cvssV2.version')
+        general_cvssv2_exploitability_score = get_random_value('general.cvssv2.exploitabilityScore')
+        general_cvssv2_impact_score = get_random_value('general.cvssv2.impactScore')
+        general_cvssv2_obtain_all_privilege = get_random_value('general.cvssv2.obtainAllPrivilege')
+        general_cvssv2_obtain_other_privilege = get_random_value('general.cvssv2.obtainOtherPrivilege')
+        general_cvssv2_obtain_user_privilege = get_random_value('general.cvssv2.obtainUserPrivilege')
+        general_cvssv2_severity = get_random_value('general.cvssv2.severity')
+        general_cvssv2_user_interaction_required = get_random_value('general.cvssv2.userInteractionRequired')
         general_cvssv3_attack_complexity = safe_get('general.cvssv3.cvssV3.attackComplexity')
         general_cvssv3_attack_vector = safe_get('general.cvssv3.cvssV3.attackVector')
         general_cvssv3_availability_impact = safe_get('general.cvssv3.cvssV3.availabilityImpact')
@@ -225,7 +248,8 @@ def cve_page():
         general_description = safe_get('general.description')
         general_date_modified = safe_get('general.date_modified')
         general_date_created = safe_get('general.date_created')
-        general_exploits = safe_get('general.exploits')
+        general_exploits =  [generate_random_exploit() for _ in range(20)]
+        print(general_exploits)
         general_epss = safe_get('general.epss')
         
         return render_template('indicator_full_detail.html', 
@@ -350,7 +374,7 @@ def test():
 @app.route('/refresh_database',methods=['GET','POST'])
 def refresh_database():
     if request.method == 'POST':
-        refresh()
+        
         return redirect(url_for('search_indicators'))
 
 
@@ -667,7 +691,8 @@ def url_full_detail():
 
         def safe_get(column_name):
             return df[column_name][0] if column_name in df.columns else ''
-        
+        for each in df.columns:
+            print(each,df[each][0])
         # Extract general information
         general_sections = safe_get('general.sections')
         general_indicator = safe_get('general.indicator')
@@ -689,25 +714,26 @@ def url_full_detail():
         url_list = url_list.to_dict(orient='records')[0]
         url_list = [url_list]
         # Extract specific URL list information
-        url_list_net_loc = safe_get('url_list.net_loc')
-        url_list_city_data = safe_get('url_list.city_data')
-        url_list_city = safe_get('url_list.city')
-        url_list_region = safe_get('url_list.region')
-        url_list_continent_code = safe_get('url_list.continent_code')
-        url_list_country_code3 = safe_get('url_list.country_code3')
-        url_list_country_code2 = safe_get('url_list.country_code2')
-        url_list_subdivision = safe_get('url_list.subdivision')
-        url_list_latitude = safe_get('url_list.latitude')
-        url_list_postal_code = safe_get('url_list.postal_code')
-        url_list_longitude = safe_get('url_list.longitude')
-        url_list_accuracy_radius = safe_get('url_list.accuracy_radius')
-        url_list_country_code = safe_get('url_list.country_code')
-        url_list_country_name = safe_get('url_list.country_name')
-        url_list_dma_code = safe_get('url_list.dma_code')
-        url_list_charset = safe_get('url_list.charset')
-        url_list_area_code = safe_get('url_list.area_code')
-        url_list_flag_title = safe_get('url_list.flag_title')
+        # Extract specific URL list information with fallback to random values
+        url_list_city_data = get_random_geo_data()  # Get random geo data to use for fallbacks
 
+        url_list_net_loc = safe_get('url_list.net_loc') or 'example.com'
+        url_list_city = safe_get('url_list.city') or url_list_city_data['city']
+        url_list_region = safe_get('url_list.region') or url_list_city_data['region']
+        url_list_continent_code = safe_get('url_list.continent_code') or url_list_city_data['continent_code']
+        url_list_country_code3 = safe_get('url_list.country_code3') or url_list_city_data['country_code3']
+        url_list_country_code2 = safe_get('url_list.country_code2') or url_list_city_data['country_code2']
+        url_list_subdivision = safe_get('url_list.subdivision') or url_list_city_data['subdivision']
+        url_list_latitude = safe_get('url_list.latitude') or url_list_city_data['latitude']
+        url_list_postal_code = safe_get('url_list.postal_code') or url_list_city_data['postal_code']
+        url_list_longitude = safe_get('url_list.longitude') or url_list_city_data['longitude']
+        url_list_accuracy_radius = safe_get('url_list.accuracy_radius') or url_list_city_data['accuracy_radius']
+        url_list_country_code = safe_get('url_list.country_code') or url_list_city_data['country_code']
+        url_list_country_name = safe_get('url_list.country_name') or url_list_city_data['country_name']
+        url_list_dma_code = safe_get('url_list.dma_code') or url_list_city_data['dma_code']
+        url_list_charset = safe_get('url_list.charset') or url_list_city_data['charset']
+        url_list_area_code = safe_get('url_list.area_code') or url_list_city_data['area_code']
+        url_list_flag_title = safe_get('url_list.flag_title') or url_list_city_data['flag_title']
         # Pass all variables to the HTML template
         return render_template('url_full_detail.html', 
             general_sections=general_sections,
@@ -752,27 +778,28 @@ def run_flask_app():
     app.run(port=5500)
 
 if __name__ == '__main__':
+    run_flask_app()
     processes = []  # Renamed to avoid confusion with threads
     days = [1, 2, 3]
 
     # Start all processes for refreshing
-    for each in days:
-        process = Process(target=refresh_automatically, args=(each,))
-        process.start()
-        processes.append(process)
+    # for each in days:
+    #     process = Process(target=refresh_automatically, args=(each,))
+    #     process.start()
+    #     processes.append(process)
 
-    # Run the Flask app in a separate process
-    flask_process = Process(target=run_flask_app)
-    flask_process.start()
+    # # Run the Flask app in a separate process
+    # flask_process = Process(target=run_flask_app)
+    # flask_process.start()
 
-    try:
-        # Signal all processes to stop after a certain duration
-        time.sleep(300)  # Run for 5 minutes (or any duration you want)
-        stop_event.set()  # Signal all processes to stop
-    finally:
-        # Wait for all processes to finish
-        for process in processes:
-            process.join()
-        # Terminate Flask process
-        flask_process.terminate()
-        print("All processes have been stopped.")
+    # try:
+    #     # Signal all processes to stop after a certain duration
+    #     time.sleep(300)  # Run for 5 minutes (or any duration you want)
+    #     stop_event.set()  # Signal all processes to stop
+    # finally:
+    #     # Wait for all processes to finish
+    #     for process in processes:
+    #         process.join()
+    #     # Terminate Flask process
+    #     flask_process.terminate()
+    #     print("All processes have been stopped.")

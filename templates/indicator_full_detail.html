@@ -315,11 +315,11 @@
                 <tbody>
                     {% for exploit in general_exploits %}
                     <tr>
-                        <td><a href="{{ exploit['url'] }}" target="_blank">{{ exploit['name'] }}</a></td>
+                        <td><a href="#" style="pointer-events: none; color: inherit; text-decoration: underline;">{{ exploit['name'] }}</a></td>
                         <td>{{ exploit['author'] }}</td>
                         <td>{{ exploit['cve'] }}</td>
                         <td>{{ exploit['description'] }}</td>
-                        <td><a href="{{ exploit['url'] }}" target="_blank">View</a></td>
+                       <td><a href="{{ exploit['url'] }}" target="_blank" style="pointer-events: none; color: inherit; text-decoration: underline;">View</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

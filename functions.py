@@ -5,6 +5,7 @@ from pandas import json_normalize
 from dotenv import load_dotenv
 import IndicatorTypes
 import sqlite3
+import random  
 import pandas as pd
 from flask import flash
 from IndicatorTypes import *
@@ -226,3 +227,72 @@ def create_software_table():
     conn.close()
 
 
+# Function to generate a randomized exploit entry
+def generate_random_exploit():
+    authors = [
+        'Lance Biggerstaff', 'CANVAS', 'Metasploit', 'ExploitHub', 'Zero Day Initiative',
+        'CyberSecOps', 'RedTeam', 'HackerOne', 'EthicalHacks', 'SecurityLab', 'ExploitMon'
+    ]
+    cve_ids = [
+        'CVE-2021-4034', 'CVE-2022-1234', 'CVE-2023-5678', 'CVE-2024-9101',
+        'CVE-2020-6789', 'CVE-2019-4567', 'CVE-2022-8765', 'CVE-2020-7654',
+        'CVE-2018-2345', 'CVE-2017-8923', 'CVE-2016-1111'
+    ]
+    names = [
+        'PolicyKit-1 0.105-31 - Privilege Escalation', 'linux_pkexec_argc', 'Remote Code Execution Exploit',
+        'Buffer Overflow Vulnerability', 'Unauthorized Access Exploit', 'SQL Injection Attack Vector',
+        'Heap Overflow Vulnerability', 'Command Injection Exploit', 'Directory Traversal Exploit',
+        'Cross-Site Scripting Vulnerability', 'Denial of Service Attack Vector', 'Privilege Escalation Attack'
+    ]
+    platforms = ['linux', 'windows', 'macos', 'android', 'ios', 'unix', 'network', 'embedded', 'cloud', 'container']
+    types = ['local', 'remote', 'network', 'physical', 'logical', 'cloud']
+    ports = [22, 80, 443, 3306, 8080, 3389, 21, 23, 445, 53, 137, 138, 139, '']  # Common ports and empty option
+
+    return {
+        'author': random.choice(authors),
+        'cve': random.choice(cve_ids),
+        'date': datetime.strptime(f"{random.randint(2000, 2023)}-{random.randint(1, 12):02d}-{random.randint(1, 28):02d}", "%Y-%m-%d").strftime("%Y-%m-%d"),
+        'name': random.choice(names),
+        'platform': random.choice(platforms),
+        'port': str(random.choice(ports)),
+        'type': random.choice(types),
+        'url': f"https://example.com/exploit/{random.randint(10000, 99999)}"
+    }
+
+def get_random_geo_data():
+    # Example realistic data
+    cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]
+    regions = ["NY", "CA", "IL", "TX", "AZ"]
+    continents = ["NA", "NA", "NA", "NA", "NA"]
+    country_codes3 = ["USA", "USA", "USA", "USA", "USA"]
+    country_codes2 = ["US", "US", "US", "US", "US"]
+    subdivisions = ["NY", "CA", "IL", "TX", "AZ"]
+    latitudes = [40.7128, 34.0522, 41.8781, 29.7604, 33.4484]
+    longitudes = [-74.0060, -118.2437, -87.6298, -95.3698, -112.0740]
+    postal_codes = ["10001", "90001", "60601", "77001", "85001"]
+    accuracy_radii = [5, 10, 15, 20, 25]
+    country_codes = ["US", "US", "US", "US", "US"]
+    country_names = ["United States", "United States", "United States", "United States", "United States"]
+    dma_codes = [501, 502, 503, 504, 505]
+    charsets = ["UTF-8", "ISO-8859-1", "UTF-16", "ASCII", "ISO-8859-15"]
+    area_codes = ["212", "213", "312", "713", "602"]
+    flag_titles = ["Flag of the USA", "Flag of the USA", "Flag of the USA", "Flag of the USA", "Flag of the USA"]
+
+    return {
+        "city": random.choice(cities),
+        "region": random.choice(regions),
+        "continent_code": random.choice(continents),
+        "country_code3": random.choice(country_codes3),
+        "country_code2": random.choice(country_codes2),
+        "subdivision": random.choice(subdivisions),
+        "latitude": random.choice(latitudes),
+        "longitude": random.choice(longitudes),
+        "postal_code": random.choice(postal_codes),
+        "accuracy_radius": random.choice(accuracy_radii),
+        "country_code": random.choice(country_codes),
+        "country_name": random.choice(country_names),
+        "dma_code": random.choice(dma_codes),
+        "charset": random.choice(charsets),
+        "area_code": random.choice(area_codes),
+        "flag_title": random.choice(flag_titles)
+    }

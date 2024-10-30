@@ -32,20 +32,20 @@
     <div class="container">
         <div class="row"><div class="col-md-13">
     <div class="side bg-dark text-light p-4">
-        <!-- General Indicator Overview -->
         <div class="content col-12 overview">
             <h2 class="section-heading">{{ general_indicator }} Overview</h2>
+           
             <p>
-                <span class="ref-label label-text">Type: </span>{{ general_type }}
+                <span class="ref-label label-text">Type Title: </span>{{ general_type_title }}  <!-- Matches the backend variable -->
             </p>
             <p>
-                <span class="ref-label label-text">Type Title: </span>{{ general_type_title }}
+                <span class="ref-label label-text">WHOIS: </span>{{ general_whois }}  <!-- Matches the backend variable -->
             </p>
             <p>
-                <span class="ref-label label-text">WHOIS: </span>{{ general_whois }}
+                <span class="ref-label label-text">Pulse Info Count: </span>{{ general_pulse_info_count }}  <!-- Added relevant pulse info -->
             </p>
             <p>
-                <span class="ref-label label-text">Reputation: </span>{{ general_reputation }}
+                <span class="ref-label label-text">False Positive: </span>{{ general_false_positive }}  <!-- Added relevant false positive info -->
             </p>
         </div>
 
@@ -56,22 +56,22 @@
                     <span class="ref-label label-text">Indicator ID: </span>{{ general_base_indicator_id }}
                 </p>
                 <p>
-                    <span class="ref-label label-text">General Indicator: </span>{{ general_base_indicator_indicator }}
+                    <span class="ref-label label-text">General Indicator: </span>{{ general_indicator }}  <!-- Ensure this variable exists in the backend -->
                 </p>
                 <p>
-                    <span class="ref-label label-text">ASN: </span>{{ general_asn }}
+                    <span class="ref-label label-text">ASN: </span>{{ general_asn }}  <!-- Make sure this variable exists in the backend -->
                 </p>
                 <p>
-                    <span class="ref-label label-text">City: </span>{{ general_city }}
+                    <span class="ref-label label-text">City: </span>{{ url_list_city }}  <!-- This matches the backend variable -->
                 </p>
                 <p>
-                    <span class="ref-label label-text">Region: </span>{{ general_region }}
+                    <span class="ref-label label-text">Region: </span>{{ url_list_region }}  <!-- This matches the backend variable -->
                 </p>
                 <p>
-                    <span class="ref-label label-text">Country Name: </span>{{ general_country_name }}
+                    <span class="ref-label label-text">Country Name: </span>{{ url_list_country_name }}  <!-- This matches the backend variable -->
                 </p>
                 <p>
-                    <span class="ref-label label-text">Country Code: </span>{{ general_country_code }}
+                    <span class="ref-label label-text">Country Code: </span>{{ url_list_country_code }}  <!-- This matches the backend variable -->
                 </p>
             </div>
         </div>
