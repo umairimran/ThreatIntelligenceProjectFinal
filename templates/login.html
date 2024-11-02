@@ -4,16 +4,22 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Login - Brand</title>
+    <title>Login - Threat Labs</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='fonts/fontawesome-all.min.css') }}">
     <style>
+        body {
+            background-color: #000; /* Black background for the body */
+            color: #fff; /* White text color */
+        }
+
         .bg-login-image {
             background-image: url('assets/img/dogs/image3.jpeg');
             background-size: cover;
             background-position: center;
             position: relative;
+            filter: blur(2px); /* Slight blur effect for background */
         }
 
         /* Overlay effect */
@@ -23,7 +29,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5); /* Dark overlay */
+            background: rgba(0, 0, 0, 0.8); /* Darker overlay for stronger contrast */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -33,8 +39,33 @@
 
         /* Optional styling for the overlay text */
         .overlay-text {
-            font-size: 1.5rem;
-            margin: 0;
+            font-size: 2rem; /* Increased font size */
+            font-weight: bold; /* Bold text */
+            color: #dc3545; /* Red color */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Shadow for better readability */
+        }
+
+        .card {
+            background-color: #222; /* Dark card background */
+            border: none; /* Remove card border */
+        }
+
+        .btn-primary {
+            background-color: #dc3545; /* Red button */
+            border: none; /* No border */
+        }
+
+        .btn-primary:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
+
+        .btn-secondary {
+            background-color: #6c757d; /* Grey color for secondary button */
+            border: none; /* No border */
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268; /* Darker grey on hover */
         }
     </style>
 </head>
@@ -56,7 +87,7 @@
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h4 class="text-dark mb-4">Welcome Back!</h4>
+                                        <h4 class="text-danger mb-4">Welcome Back!</h4> <!-- Red title -->
                                     </div>
                                     <form method="POST" action="/login" class="user">
                                         <div class="mb-3">
@@ -71,7 +102,7 @@
                                             <a href="/admin" class="btn btn-secondary d-block btn-user w-100">Click to go to Admin Page</a>
                                         </div>
                                     </form>
-                                   </div>
+                                </div>
                             </div>
                         </div>
                     </div>

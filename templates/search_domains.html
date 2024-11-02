@@ -1,44 +1,48 @@
 {% extends "html_base.html" %}
 {% block content %}
-<body>
+<body class="bg-dark text-light">
     <div class="container">
-        <nav class="navbar navbar-dark navbar-expand-md fixed-top bg-dark">
+        <nav class="navbar navbar-expand-md navbar-dark bg-black fixed-top">
             <div class="container">
                 <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
                     <span class="visually-hidden">Toggle navigation</span>
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                
-                <a href="/search_indicators">THREAT LAB</a>
+                <a href="/search_indicators" class="navbar-brand text-danger">THREAT LAB</a>
                 <div class="collapse navbar-collapse" id="navcol-1">
                     <ul class="navbar-nav flex-grow-1 justify-content-between">
-                        <li class="nav-item"><a class="nav-link" href="#"></a></li>
-
-                        <li class="nav-item"><a class="nav-link" href="/search_indicators">Indicators</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/search_indicators">Vulnerability</a></li>
                         <li class="nav-item"><a class="nav-link" href="/search_urls">URL</a></li>
                         <li class="nav-item"><a class="nav-link" href="/search_domains">DOMAIN</a></li>
                         <li class="nav-item"><a class="nav-link" href="/search_ip4">IPv4</a></li>
                         <li class="nav-item"><a class="nav-link" href="/search_hostnames">HOST NAME</a></li>
                         <li class="nav-item"><a class="nav-link" href="/logout">Login</a></li>
-
                     </ul>
                 </div>
             </div>
         </nav>
 
         <!-- Refresh Database Button -->
-        <div class="container mt-5 pt-2"> <!-- Add margin-top to push it below the navbar -->
-            <div class="text-center mb-3"> <!-- Center the button and add margin-bottom -->
-                <form method="POST" action="/refresh_database"> <!-- Replace with your endpoint -->
-                    <button type="submit" class="btn btn-dark">Refresh Database</button>
-                </form>
+        <div class="container mt-5 pt-5"> <!-- Add margin-top to push it below the navbar -->
+            <div class="text-center mb-3">
+                <!-- <form method="POST" action="/refresh_database">
+                    <button type="submit" class="btn btn-danger">Refresh Database</button>
+                </form> -->
             </div>
-            <div>
+            <div style="font-size: 14px; margin-bottom: 5px;">
                 {{ indicators_list | length }} Indicators Found
-            </div>  
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; margin-top: 5px;">
+                <h4 style="margin-right: 5px; font-size: 14px;">Common Searches:</h4>
+                {% for tag in tags %}
+                    <span class="badge bg-danger" style="margin-right: 5px; font-size: 12px;">
+                        {{ tag }}
+                    </span>
+                {% endfor %}
+            </div>
             <!-- Search Form -->
-            <form class="search-form" method="POST" action="/search_indicators">
-                <div class="input-group">
+            <form class="search-form" method="POST" action="/search_domains">
+                <div class="input-group mt-3">
                     <span class="input-group-text"><i class="fa fa-search"></i></span>
                     <input class="form-control" type="text" name="search_query" placeholder="I am looking for.." required />
                     <button class="btn btn-light" type="submit">Search</button>
@@ -50,67 +54,65 @@
     <div class="container mt-5"> <!-- Adjust the container margin as needed -->
         <div class="row"> <!-- Start of the row -->
             {% for indicator in indicators_list %}
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-4"> <!-- Column for each card -->
-                    <div class="card pulse even bg-primary text-white" style="height: 350px;"> <!-- Set a fixed height -->
-                        <div class="card-body d-flex flex-column">
-                            <h3 title="{{ indicator.indicator }}" class="text-truncate">
-                                <a href="#" class="text-white" onclick="event.preventDefault();">
-                                    {{ indicator.indicator }}
-                                </a>
-                            </h3>
-                            <div class="details-wrapper d-flex flex-column flex-grow-1" style="overflow: auto;"> <!-- Allow scrolling if content overflows -->
-                                <div class="pulse-meta flex-grow-1">
-                                    <ul class="list-unstyled">
-                                        <li class="d-flex align-items-center">
-                                            <span class="indicator_type">Type:&nbsp;</span>
-                                            <span>&nbsp;{{ indicator.type }}</span>
-                                        </li>
-                                        <li class="d-flex align-items-center">
-                                            <span class="vulnerability"><i class="fa fa-circle" style="color: orange;"></i>&nbsp;Severity:&nbsp;</span>
-                                            <span>&nbsp;{{ indicator.severity }}</span>
-                                        </li>
-                                        <li class="d-flex align-items-center">
-                                            <span><i class="fa fa-circle" style="color: red;"></i>&nbsp;Base Severity:&nbsp;</span>
-                                            <span>{{ indicator.baseSeverity }}</span>
-                                        </li>
-                                        <li class="d-flex align-items-center">
-                                            <span><i class="fa fa-circle" style="color: yellow;"></i>&nbsp;Attack Complexity:&nbsp;</span>
-                                            <span>{{ indicator.attackComplexity }}</span>
-                                        </li>
-                                        <li class="d-flex align-items-center">
-                                            <span><i class="fa fa-circle" style="color: lightgreen;"></i>&nbsp;Exploitability Score:&nbsp;</span>
-                                            <span>{{ indicator.exploitabilityScore }}</span>
-                                        </li>
-                                        <li class="d-flex align-items-center">
-                                            <span>Impact Score:&nbsp;</span>
-                                            <span>{{ indicator.impactScore }}</span>
-                                        </li>
-                                        <li class="d-flex align-items-center">
-                                            <span>Access Type:&nbsp;</span>
-                                            <span>{{ indicator.access_type }}</span>
-                                        </li>
-                                        <li class="d-flex align-items-center">
-                                            <span>Access Reason:&nbsp;</span>
-                                            <span>{{ indicator.access_reason }}</span>
-                                        </li>
-                                
-                                   
-                                    </ul>
-                                </div>
-        
-                                <div class="pulse-actions mt-3">
-                                    <div class="d-flex justify-content-end">
-                                        <form method="POST" action="/domain_full_detail">
-                                            <input type="hidden" name="indicator" value="{{ indicator.indicator }}">
-                                            <input type="hidden" name="base_indicator_type" value="{{ indicator.type }}">
-                                            <button type="submit" class="btn btn-light btn-lg" aria-haspopup="true">Details</button>
-                                        </form>
-                                    </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4"> <!-- Column for each card -->
+                <div class="card pulse even {{ 'bg-danger text-light' if loop.index <= 10 else 'bg-primary text-light' }}" style="height: 350px;"> <!-- Set a fixed height -->
+                    <div class="card-body d-flex flex-column">
+                        <h3 title="{{ indicator.indicator }}" class="text-truncate">
+                            <a href="#" class="text-light" onclick="event.preventDefault();">
+                                {{ indicator.indicator }}
+                            </a>
+                        </h3>
+                        <div class="details-wrapper d-flex flex-column flex-grow-1" style="overflow: auto;">
+                            <div class="pulse-meta flex-grow-1">
+                                <ul class="list-unstyled">
+                                    <li class="d-flex align-items-center">
+                                        <span class="indicator_type">Type:&nbsp;</span>
+                                        <span>&nbsp;{{ indicator.type }}</span>
+                                    </li>
+                                    <li class="d-flex align-items-center">
+                                        <span class="vulnerability"><i class="fa fa-circle" style="color: orange;"></i>&nbsp;Severity:&nbsp;</span>
+                                        <span>&nbsp;{{ indicator.severity }}</span>
+                                    </li>
+                                    <li class="d-flex align-items-center">
+                                        <span><i class="fa fa-circle" style="color: red;"></i>&nbsp;Base Severity:&nbsp;</span>
+                                        <span>{{ indicator.baseSeverity }}</span>
+                                    </li>
+                                    <li class="d-flex align-items-center">
+                                        <span><i class="fa fa-circle" style="color: yellow;"></i>&nbsp;Attack Complexity:&nbsp;</span>
+                                        <span>{{ indicator.attackComplexity }}</span>
+                                    </li>
+                                    <li class="d-flex align-items-center">
+                                        <span><i class="fa fa-circle" style="color: lightgreen;"></i>&nbsp;Exploitability Score:&nbsp;</span>
+                                        <span>{{ indicator.exploitabilityScore }}</span>
+                                    </li>
+                                    <li class="d-flex align-items-center">
+                                        <span>Impact Score:&nbsp;</span>
+                                        <span>{{ indicator.impactScore }}</span>
+                                    </li>
+                                    <li class="d-flex align-items-center">
+                                        <span>Access Type:&nbsp;</span>
+                                        <span>{{ indicator.access_type }}</span>
+                                    </li>
+                                    <li class="d-flex align-items-center">
+                                        <span>Access Reason:&nbsp;</span>
+                                        <span>{{ indicator.access_reason }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="pulse-actions mt-3">
+                                <div class="d-flex justify-content-end">
+                                    <form method="POST" action="/domain_full_detail">
+                                        <input type="hidden" name="indicator" value="{{ indicator.indicator }}">
+                                        <input type="hidden" name="base_indicator_type" value="{{ indicator.type }}">
+                                        <button type="submit" class="btn btn-light">Details</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
             {% endfor %}
         </div>
          <!-- Close the last row -->

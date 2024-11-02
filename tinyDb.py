@@ -4,6 +4,10 @@ from OTXv2 import *
 from admin import * 
 from flask import session
 import threading
+from flask import Flask, jsonify, Response, request
+from multiprocessing import Process
+import time
+import json
 from datetime import datetime, timedelta
 db = TinyDB('db.json')
 indicators_table = db.table('indicators')
@@ -25,12 +29,12 @@ def insert_indicators_in_table(modified_date, indicator_type):
     """
     # Retrieve full details of indicators based on the modified date and type
     indicator_types = [
-        CVE,
+       
         DOMAIN,
         HOSTNAME,
         URL,
         IPv4,
-        
+        CVE 
     ]
     
     for each in indicator_types:
@@ -61,6 +65,8 @@ def insert_indicators_in_table(modified_date, indicator_type):
                     with db_lock:
                         indicators_table.insert(indicator)
                         print('Indicator inserted in database')
+                        
+                    
                 else:
                     # Indicate that the indicator already exists
                     print('Indicator already exists in database')
@@ -143,31 +149,38 @@ def search_domain_with_query(query: str):
     with db_lock:
         data=indicators_table.all()
         df=json_normalize(data)
-        return get_dataframe_by_indicator(df, 'domain')
+        df=df.sort_values(by='general.date_modified', ascending=False)
+        return get_dataframe_by_indicator(df, 'domain',query)
 
 
 def search_url_with_query(query: str):
     with db_lock:
         data=indicators_table.all()
         df=json_normalize(data)
-        return get_dataframe_by_indicator(df, 'URL')
+        df=df.sort_values(by='general.date_modified', ascending=False)
+        return get_dataframe_by_indicator(df, 'URL',query)
 
 
 def search_ip4_with_query(query: str):
     with db_lock:
         data=indicators_table.all()
         df=json_normalize(data)
-        return get_dataframe_by_indicator(df, 'IPv4')
+        df=df.sort_values(by='general.date_modified', ascending=False)
+        df= get_dataframe_by_indicator(df, 'IPv4',query)
+        
+        return df
 
 
 def search_hostnames_with_query(query: str):
     with db_lock:
         data=indicators_table.all()
         df=json_normalize(data)
-        return get_dataframe_by_indicator(df, 'hostname')
+        df=df.sort_values(by='general.date_modified', ascending=False)
+        
+        return get_dataframe_by_indicator(df, 'hostname',query)
 
 
-def get_dataframe_by_indicator(dataframe, indicator):
+def get_dataframe_by_indicator(dataframe, indicator, query=''):
     # Define the date one day ago
     one_day_ago = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     
@@ -181,6 +194,17 @@ def get_dataframe_by_indicator(dataframe, indicator):
 
     # Loop through the rows of the dataframe that match the indicator type
     for index, each in dataframe[dataframe['general.base_indicator.type'] == indicator].iterrows():
+        # Extract tags for the current indicator
+        tags = []
+        try:
+            # Normalize the 'general.pulse_info.pulses' and fetch the tags
+            pulses_df = json_normalize(each['general.pulse_info.pulses'])
+            
+            tags =pulses_df['tags'].dropna().tolist()
+          
+        except Exception as e:
+            print(f"Error retrieving tags: {e}")
+
         def get_value_or_random(field):
             try:
                 # Attempt to get the value from the row
@@ -190,7 +214,7 @@ def get_dataframe_by_indicator(dataframe, indicator):
             except Exception as e:
                 print(f"Error retrieving value for field '{field}': {e}")
                 return None  # Return None if there's an error
-        
+
         # Create a dictionary for each indicator and append it to the list
         indicator_data = {
             'indicator': each.get('general.base_indicator.indicator', ''),
@@ -204,12 +228,23 @@ def get_dataframe_by_indicator(dataframe, indicator):
             'access_reason': get_value_or_random('general.base_indicator.access_reason'),
             'date_modified': pd.to_datetime(each.get('general.date_modified', datetime.now())).date(),
             'date_created': pd.to_datetime(each.get('general.date_created', datetime.now())).date(),
+           
         }
 
         # Only add to the list if the required keys are present
         if indicator_data['indicator'] and indicator_data['type']:
+            # If the query is not empty, check for matches in the tags
+            if query and not any(query in tag for tag_list in tags for tag in tag_list):
+                continue  # Skip this indicator if the query doesn't match any tags
             indicators_list.append(indicator_data)
-    
+
     return indicators_list
 
-
+def extract_tags_by_indicator(indicator):
+    df = indicators_table.all()
+    df = json_normalize(df)
+    tags = [item['tags'] for item in json_normalize(df[df['general.base_indicator.type'] == indicator]['general.pulse_info.pulses'])[0].dropna()]
+    
+    # Flatten the list and remove duplicates
+    unique_tags = list(set(tag for sublist in tags for tag in sublist))
+    return unique_tags

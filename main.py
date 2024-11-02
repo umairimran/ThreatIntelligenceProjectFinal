@@ -347,6 +347,9 @@ def search_indicators():
   
     indicators_df = get_cleaned_indicator_data_from_database(query)
     indicators_list = []
+ # Sort by the entire `general.date_modified` column in ascending order
+    indicators_df = indicators_df.sort_values(by='general.date_modified', ascending=False)
+    print(indicators_df['general.date_modified'])
    
  
     # Check if DataFrame is not empty or null
@@ -458,49 +461,51 @@ def create_user_endpoint():
 
 @app.route('/search_domains', methods=["GET", "POST"])
 def search_domains():
-    query = ""
+    query = ' '
     if request.method == "GET":
-        query = get_joined_query()
+        query = ' '
     elif request.method == "POST":
         query = request.form['search_query']
     
     domains = search_domain_with_query(query)
-
-    return render_template('search_domains.html', indicators_list=domains)
+    tags=extract_tags_by_indicator("domain")
+    return render_template('search_domains.html', indicators_list=domains,tags=tags)
 
 @app.route('/search_urls', methods=["GET", "POST"])
 def search_urls():
-    query = ""
+    query = ' '
     if request.method == "GET":
-        query = get_joined_query()
+        query = ' '
     elif request.method == "POST":
         query = request.form['search_query']
    
     urls = search_url_with_query(query)
-    
-    return render_template('search_urls.html', indicators_list=urls)
+    tags=extract_tags_by_indicator("URL")
+    return render_template('search_urls.html', indicators_list=urls,tags=tags)
 
 @app.route('/search_ip4', methods=["GET", "POST"])
 def search_ip4():
-    query = ""
+    query = ' '
     if request.method == "GET":
-        query = get_joined_query()
+        query = ' '
     elif request.method == "POST":
         query = request.form['search_query']
 
     ipv4 = search_ip4_with_query(query)
-    return render_template('search_ip4.html', indicators_list=ipv4)
+    tags=extract_tags_by_indicator("IPv4")
+    return render_template('search_ip4.html', indicators_list=ipv4,tags=tags)
 
 @app.route('/search_hostnames', methods=["GET", "POST"])
 def search_hostnames():
-    query = ""
+    query = ' '
     if request.method == "GET":
-        query = get_joined_query()
+        query = ' '
     elif request.method == "POST":
         query = request.form['search_query']
 
     hostnames = search_hostnames_with_query(query)
-    return render_template('search_hostnames.html', indicators_list=hostnames)
+    tags=extract_tags_by_indicator("hostname")
+    return render_template('search_hostnames.html', indicators_list=hostnames,tags=tags)
 
 def get_joined_query():
     if 'username' not in session:
@@ -594,7 +599,8 @@ def ip4_full_detail():
     if request.method == 'POST':
         indicator = request.form['indicator']
         indicator_type = request.form['base_indicator_type']
-        df = otx_object.get_indicator_details_full(IPv4, indicator)
+      
+        df = otx_object.get_indicator_details_full(get_indicator_type(indicator_type), indicator)
         df = json_normalize(df)
 
         def safe_get(column_name):
@@ -642,6 +648,7 @@ def ip4_full_detail():
         # Extract passive DNS information
         passive_dns_count = safe_get('passive_dns.count')
         passive_dns_data = safe_get('passive_dns.passive_dns')
+        print(passive_dns_data)
 
         # Pass all variables to the HTML template
         return render_template('ipv4_full_details.html', 
@@ -776,30 +783,36 @@ def refresh_automatically(days):
     print(f"Data for {days} added to database.")
 def run_flask_app():
     app.run(port=5500)
+@app.route('/events')
+def events():
+    def generate():
+        while True:
+            time.sleep(1)  # Adjust as needed for checking frequency
+            yield f"data: {json.dumps({'refresh': True})}\n\n"
+    return Response(generate(), mimetype='text/event-stream')
 
 if __name__ == '__main__':
-    run_flask_app()
+ 
     processes = []  # Renamed to avoid confusion with threads
-    days = [1, 2, 3]
+    days = [1,2,3]
 
-    # Start all processes for refreshing
-    # for each in days:
-    #     process = Process(target=refresh_automatically, args=(each,))
-    #     process.start()
-    #     processes.append(process)
+    
+    for each in days:
+        process = Process(target=refresh_automatically, args=(each,))
+        process.start()
+        processes.append(process)
 
-    # # Run the Flask app in a separate process
-    # flask_process = Process(target=run_flask_app)
-    # flask_process.start()
+    flask_process = Process(target=run_flask_app)
+    flask_process.start()
 
-    # try:
-    #     # Signal all processes to stop after a certain duration
-    #     time.sleep(300)  # Run for 5 minutes (or any duration you want)
-    #     stop_event.set()  # Signal all processes to stop
-    # finally:
-    #     # Wait for all processes to finish
-    #     for process in processes:
-    #         process.join()
-    #     # Terminate Flask process
-    #     flask_process.terminate()
-    #     print("All processes have been stopped.")
+    try:
+
+        time.sleep(300) 
+        stop_event.set()  
+    finally:
+     
+        for process in processes:
+            process.join()
+        # Terminate Flask process
+        flask_process.terminate()
+        print("All processes have been stopped.")
