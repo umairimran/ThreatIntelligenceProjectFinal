@@ -20,7 +20,7 @@ def insert_indicators_in_table(modified_date, indicator_type):
     """
     Inserts indicators into the database if they do not already exist.
 
-    Parameters:
+    Parameters
     modified_date (str): The date when the indicators were modified.
     indicator_type (str): The type of indicators to retrieve.
 
