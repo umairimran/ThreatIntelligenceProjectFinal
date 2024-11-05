@@ -131,26 +131,11 @@ def get_urls_list_of_indicator(df):
     return flattened_data
 
 def get_indicators(modified_date, indicator_type):
-    """
-    Fetches and returns a list of full indicator details based on the modified data.
-
-    Args:
-        modified_data (str): The date from which indicators should be fetched (ISO format).
-        indicator_type (str, optional): The specific type of indicator to filter by (e.g., 'CVE', 'IP', etc.).
-                                        Defaults to None, which retrieves all indicator types.
-    
-    Returns:
-        list: A list of dictionaries containing full indicator details.
-              If no indicators are found, an empty list is returned.
-    
-    Raises:
-        ValueError: If the `modified_data` is not in the correct format or if the API response fails.
-    """
-    # Initialize the list to hold full indicator details
+# Initialize the list to hold full indicator details
     indicators_full_details_list = []
 
         # Fetch all indicators modified since the provided date
-    indicators = otx_object.get_all_indicators(indicator_types=indicator_type, modified_since=modified_date)
+    indicators = otx_object.get_all_indicators(indicator_types=indicator_type, modified_since=modified_date,limit=5,max_items=10)
     
     indicator_list=list(indicators)
     for each in indicator_list:
@@ -296,3 +281,8 @@ def get_random_geo_data():
         "area_code": random.choice(area_codes),
         "flag_title": random.choice(flag_titles)
     }
+
+
+
+
+

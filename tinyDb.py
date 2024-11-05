@@ -3,7 +3,7 @@ from functions import *
 from OTXv2 import *
 from admin import * 
 from flask import session
-import threading
+from db_lock import *
 from flask import Flask, jsonify, Response, request
 from multiprocessing import Process
 import time
@@ -15,7 +15,7 @@ Indicator= Query()
 from dotenv import load_dotenv
 load_dotenv()
 otx_object = OTXv2(os.getenv('os.getenv('"API_KEY"')'))
-db_lock = threading.Lock()
+
 def insert_indicators_in_table(modified_date, indicator_type):
     """
     Inserts indicators into the database if they do not already exist.
@@ -30,49 +30,49 @@ def insert_indicators_in_table(modified_date, indicator_type):
     # Retrieve full details of indicators based on the modified date and type
     indicator_types = [
        
-        DOMAIN,
-        HOSTNAME,
-        URL,
-        IPv4,
-        CVE 
+    DOMAIN,
+    HOSTNAME,
+    URL,
+   # IPv4,
+    CVE 
     ]
     
     for each in indicator_types:
         indicators_full_details = get_indicators(modified_date, [each])
 
         # Get all existing indicators from the database
-        
-        found_indicators_in_database = indicators_table.all()
+        with db_lock:
+            found_indicators_in_database = indicators_table.all()
         indicators_found_in_database = []
 
-        # Collect indicators that are currently in the database
+            # Collect indicators that are currently in the database
         for each in found_indicators_in_database:
-            try:
-                indicators_found_in_database.append(json_normalize(each)['general.base_indicator.indicator'][0])
-            except (KeyError, IndexError) as e:
-                # Log the error or handle it accordingly, but continue processing
-                print(f"Error processing existing indicator: {e}")
+                try:
+                    indicators_found_in_database.append(json_normalize(each)['general.base_indicator.indicator'][0])
+                except (KeyError, IndexError) as e:
+                    # Log the error or handle it accordingly, but continue processing
+                    print(f"Error processing existing indicator: {e}")
 
-        # Loop through the retrieved indicators to check for insertion
+            # Loop through the retrieved indicators to check for insertion
         for indicator in indicators_full_details:
-            try:
-                ind = json_normalize(indicator)['general.base_indicator.indicator'][0]
-                
-                # Check if the indicator is already in the database
-                if ind not in indicators_found_in_database:
-                    # Insert the new indicator into the database
+                try:
+                    ind = json_normalize(indicator)['general.base_indicator.indicator'][0]
                     
-                    with db_lock:
-                        indicators_table.insert(indicator)
-                        print('Indicator inserted in database')
+                    # Check if the indicator is already in the database
+                    if ind not in indicators_found_in_database:
+                        # Insert the new indicator into the database
                         
-                    
-                else:
-                    # Indicate that the indicator already exists
-                    print('Indicator already exists in database')
-            except (KeyError, IndexError) as e:
-                # Log the error or handle it accordingly, but continue processing
-                print(f"Error processing indicator: {e}")
+                        with db_lock:
+                            indicators_table.insert(indicator)
+                            print('Indicator inserted in database')
+                            
+                        
+                    else:
+                        # Indicate that the indicator already exists
+                        print('Indicator already exists in database')
+                except (KeyError, IndexError) as e:
+                    # Log the error or handle it accordingly, but continue processing
+                    print(f"Error processing indicator: {e}")
 
 def search_for_indicator(query):
     """
@@ -239,12 +239,14 @@ def get_dataframe_by_indicator(dataframe, indicator, query=''):
             indicators_list.append(indicator_data)
 
     return indicators_list
-
 def extract_tags_by_indicator(indicator):
-    df = indicators_table.all()
-    df = json_normalize(df)
-    tags = [item['tags'] for item in json_normalize(df[df['general.base_indicator.type'] == indicator]['general.pulse_info.pulses'])[0].dropna()]
-    
-    # Flatten the list and remove duplicates
-    unique_tags = list(set(tag for sublist in tags for tag in sublist))
+    with db_lock:
+        df = indicators_table.all()
+        df = json_normalize(df)
+        tags = [item['tags'] for item in json_normalize(df[df['general.base_indicator.type'] == indicator]['general.pulse_info.pulses'])[0].dropna()]
+        
+        # Flatten the list and remove duplicates
+        unique_tags = list(set(tag for sublist in tags for tag in sublist))
     return unique_tags
+
+

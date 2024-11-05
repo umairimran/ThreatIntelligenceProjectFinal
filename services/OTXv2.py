@@ -492,6 +492,8 @@ class OTXv2(object):
         :param modified_since limit indicators to ones found in pulses modified since modified_since
         :return: yields the indicator object for use
         """
+        print(limit)
+      
         name_list = IndicatorTypes.to_name_list(indicator_types)
         for pulse in self.getall_iter(author_name=author_name, modified_since=modified_since, limit=limit, max_page=max_page, max_items=max_items):
             for indicator in pulse["indicators"]:

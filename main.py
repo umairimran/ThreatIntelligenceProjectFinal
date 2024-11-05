@@ -792,11 +792,9 @@ def events():
     return Response(generate(), mimetype='text/event-stream')
 
 if __name__ == '__main__':
- 
-    processes = []  # Renamed to avoid confusion with threads
-    days = [1,2,3]
+    processes = []
+    days = [1, 2, 3,4,5,6,7,8,9,10]
 
-    
     for each in days:
         process = Process(target=refresh_automatically, args=(each,))
         process.start()
@@ -806,13 +804,10 @@ if __name__ == '__main__':
     flask_process.start()
 
     try:
-
-        time.sleep(300) 
-        stop_event.set()  
+        time.sleep(300)  # Run threads for 300 seconds
+        stop_event.set()  # Signal threads to stop
     finally:
-     
         for process in processes:
-            process.join()
-        # Terminate Flask process
-        flask_process.terminate()
-        print("All processes have been stopped.")
+            process.join()  # Wait for threads to complete
+
+        print("Background processes have been stopped, but Flask continues to run.")
