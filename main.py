@@ -151,7 +151,7 @@ def cve_page():
         """
         i = otx_object.get_indicator_details_full(indicator_type=get_indicator_type(indicator_type), indicator=indicator)
         df = json_normalize(i)
-
+        
         # Define a helper function to safely get values from the DataFrame
         def safe_get(column_name):
             return df[column_name][0] if column_name in df.columns else ''
@@ -182,6 +182,7 @@ def cve_page():
         general_mitre_url = safe_get('general.mitre_url')
         general_nvd_url = safe_get('general.nvd_url')
         general_indicator = safe_get('general.indicator')
+
         general_type_title = safe_get('general.type_title')
         general_base_indicator_id = int(safe_get('general.base_indicator.id')) if safe_get('general.base_indicator.id') else 0
         general_base_indicator_type = safe_get('general.base_indicator.type')
@@ -349,7 +350,7 @@ def search_indicators():
     indicators_list = []
  # Sort by the entire `general.date_modified` column in ascending order
     indicators_df = indicators_df.sort_values(by='general.date_modified', ascending=False)
-    print(indicators_df['general.date_modified'])
+    indicators_df = indicators_df.drop_duplicates(subset='general.base_indicator.indicator', keep='first')
    
  
     # Check if DataFrame is not empty or null
