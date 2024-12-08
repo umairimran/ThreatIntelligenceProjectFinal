@@ -28,9 +28,8 @@ clear_session_flag = True
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 app.secret_key = '123456789'
 # Create the users table when the app starts
+
 users = retrieve_users() 
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     users = retrieve_users()  # Fetch the list of users from the database
@@ -157,8 +156,8 @@ def cve_page():
             return df[column_name][0] if column_name in df.columns else ''
     
         # Function to generate random values for each specific CVSS V2 field
-        def get_random_value(column_name):
-            random_values = {
+        def get_value(column_name):
+            values = {
                 'general.cvssv2.acInsufInfo': random.choice([True, False]),
                 'general.cvssv2.cvssV2.accessComplexity': random.choice(['LOW', 'MEDIUM', 'HIGH']),
                 'general.cvssv2.cvssV2.accessVector': random.choice(['LOCAL', 'ADJACENT_NETWORK', 'NETWORK']),
@@ -176,7 +175,7 @@ def cve_page():
                 'general.cvssv2.severity': random.choice(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
                 'general.cvssv2.userInteractionRequired': random.choice([True, False]),
             }
-            return random_values.get(column_name, '')
+            return values.get(column_name, '')
         
         general_sections = safe_get('general.sections')
         general_mitre_url = safe_get('general.mitre_url')
@@ -205,22 +204,22 @@ def cve_page():
         general_cvss_integrity_impact = safe_get('general.cvss.Integrity-Impact')
         general_cvss_vector_string = safe_get('general.cvss.vectorString')
         # Assign random values directly using get_random_value function
-        general_cvssv2_ac_insuf_info = get_random_value('general.cvssv2.acInsufInfo')
-        general_cvssv2_access_complexity = get_random_value('general.cvssv2.cvssV2.accessComplexity')
-        general_cvssv2_access_vector = get_random_value('general.cvssv2.cvssV2.accessVector')
-        general_cvssv2_authentication = get_random_value('general.cvssv2.cvssV2.authentication')
-        general_cvssv2_availability_impact = get_random_value('general.cvssv2.cvssV2.availabilityImpact')
-        general_cvssv2_base_score = get_random_value('general.cvssv2.cvssV2.baseScore')
-        general_cvssv2_confidentiality_impact = get_random_value('general.cvssv2.cvssV2.confidentialityImpact')
-        general_cvssv2_integrity_impact = get_random_value('general.cvssv2.cvssV2.integrityImpact')
-        general_cvssv2_version = get_random_value('general.cvssv2.cvssV2.version')
-        general_cvssv2_exploitability_score = get_random_value('general.cvssv2.exploitabilityScore')
-        general_cvssv2_impact_score = get_random_value('general.cvssv2.impactScore')
-        general_cvssv2_obtain_all_privilege = get_random_value('general.cvssv2.obtainAllPrivilege')
-        general_cvssv2_obtain_other_privilege = get_random_value('general.cvssv2.obtainOtherPrivilege')
-        general_cvssv2_obtain_user_privilege = get_random_value('general.cvssv2.obtainUserPrivilege')
-        general_cvssv2_severity = get_random_value('general.cvssv2.severity')
-        general_cvssv2_user_interaction_required = get_random_value('general.cvssv2.userInteractionRequired')
+        general_cvssv2_ac_insuf_info = get_value('general.cvssv2.acInsufInfo')
+        general_cvssv2_access_complexity = get_value('general.cvssv2.cvssV2.accessComplexity')
+        general_cvssv2_access_vector = get_value('general.cvssv2.cvssV2.accessVector')
+        general_cvssv2_authentication = get_value('general.cvssv2.cvssV2.authentication')
+        general_cvssv2_availability_impact = get_value('general.cvssv2.cvssV2.availabilityImpact')
+        general_cvssv2_base_score = get_value('general.cvssv2.cvssV2.baseScore')
+        general_cvssv2_confidentiality_impact = get_value('general.cvssv2.cvssV2.confidentialityImpact')
+        general_cvssv2_integrity_impact = get_value('general.cvssv2.cvssV2.integrityImpact')
+        general_cvssv2_version = get_value('general.cvssv2.cvssV2.version')
+        general_cvssv2_exploitability_score = get_value('general.cvssv2.exploitabilityScore')
+        general_cvssv2_impact_score = get_value('general.cvssv2.impactScore')
+        general_cvssv2_obtain_all_privilege = get_value('general.cvssv2.obtainAllPrivilege')
+        general_cvssv2_obtain_other_privilege = get_value('general.cvssv2.obtainOtherPrivilege')
+        general_cvssv2_obtain_user_privilege = get_value('general.cvssv2.obtainUserPrivilege')
+        general_cvssv2_severity = get_value('general.cvssv2.severity')
+        general_cvssv2_user_interaction_required = get_value('general.cvssv2.userInteractionRequired')
         general_cvssv3_attack_complexity = safe_get('general.cvssv3.cvssV3.attackComplexity')
         general_cvssv3_attack_vector = safe_get('general.cvssv3.cvssV3.attackVector')
         general_cvssv3_availability_impact = safe_get('general.cvssv3.cvssV3.availabilityImpact')
@@ -246,6 +245,7 @@ def cve_page():
         general_products = safe_get('general.products')
         general_seen_wild = safe_get('general.seen_wild')
         general_references = safe_get('general.references')
+        print(general_references)
         general_description = safe_get('general.description')
         general_date_modified = safe_get('general.date_modified')
         general_date_created = safe_get('general.date_created')
@@ -459,54 +459,62 @@ def create_user_endpoint():
 
 
 
-
 @app.route('/search_domains', methods=["GET", "POST"])
 def search_domains():
-    query = ' '
-    if request.method == "GET":
-        query = ' '
-    elif request.method == "POST":
-        query = request.form['search_query']
+    query = ''  # Default value for query
+    if request.method == "POST":
+        query = request.form.get('search_query', '').strip()  # Retrieve and clean the search query
     
+    # Fetch domains and tags based on the search query
     domains = search_domain_with_query(query)
-    tags=extract_tags_by_indicator("domain")
-    return render_template('search_domains.html', indicators_list=domains,tags=tags)
+    tags = extract_tags_by_indicator("domain")
+    
+    # Render the template with the search query included
+    return render_template('search_domains.html', 
+                           indicators_list=domains, 
+                           tags=tags, 
+                           search_query=query)
+
 
 @app.route('/search_urls', methods=["GET", "POST"])
 def search_urls():
-    query = ' '
-    if request.method == "GET":
-        query = ' '
-    elif request.method == "POST":
-        query = request.form['search_query']
-   
+    query = ''
+    if request.method == "POST":
+        query = request.form['search_query']  # Get the query from the POST request
+
+    # Perform the search or any other operations based on the query
     urls = search_url_with_query(query)
-    tags=extract_tags_by_indicator("URL")
-    return render_template('search_urls.html', indicators_list=urls,tags=tags)
+    tags = extract_tags_by_indicator("URL")
+
+    # Pass the query and other data to the template
+    return render_template('search_urls.html', indicators_list=urls, tags=tags, search_query=query)
 
 @app.route('/search_ip4', methods=["GET", "POST"])
 def search_ip4():
-    query = ' '
-    if request.method == "GET":
-        query = ' '
-    elif request.method == "POST":
-        query = request.form['search_query']
+    query = ''
+    if request.method == "POST":
+        query = request.form['search_query']  # Get the query from the POST request
 
-    ipv4 = search_ip4_with_query(query)
-    tags=extract_tags_by_indicator("IPv4")
-    return render_template('search_ip4.html', indicators_list=ipv4,tags=tags)
+    # Perform the search based on the query
+    ipv4 = search_ip4_with_query(query)  # Make sure this function returns valid data
+    tags = extract_tags_by_indicator("IPv4")  # Make sure this returns valid tags
+
+    # Pass the query, ipv4 results, and tags to the template
+    return render_template('search_ip4.html', indicators_list=ipv4, tags=tags, search_query=query)
 
 @app.route('/search_hostnames', methods=["GET", "POST"])
 def search_hostnames():
-    query = ' '
-    if request.method == "GET":
-        query = ' '
-    elif request.method == "POST":
-        query = request.form['search_query']
+    query = ''
+    if request.method == "POST":
+        query = request.form['search_query']  # Get the query from the POST request
 
-    hostnames = search_hostnames_with_query(query)
-    tags=extract_tags_by_indicator("hostname")
-    return render_template('search_hostnames.html', indicators_list=hostnames,tags=tags)
+    # Perform the search or any other operations based on the query
+    hostnames = search_hostnames_with_query(query)  # Make sure this function returns valid data
+    tags = extract_tags_by_indicator("hostname")  # Make sure this function returns valid data
+
+    # Pass the query, hostnames, and tags to the template
+    return render_template('search_hostnames.html', indicators_list=hostnames, tags=tags, search_query=query)
+
 
 def get_joined_query():
     if 'username' not in session:

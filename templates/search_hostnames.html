@@ -40,14 +40,20 @@
                     </span>
                 {% endfor %}
             </div> 
-            <!-- Search Form -->
-            <form class="search-form mt-3" method="POST" action="/search_hostnames">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-search"></i></span>
-                    <input class="form-control" type="text" name="search_query" placeholder="I am looking for.." required />
-                    <button class="btn btn-light" type="submit">Search</button>
-                </div>
-            </form>
+          <!-- Search Form -->
+<!-- Search Form -->
+<form class="search-form mt-3" method="POST" action="/search_hostnames">
+    <div class="input-group">
+        <span class="input-group-text"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" name="search_query" placeholder="I am looking for.." required value="{{ search_query }}" />
+        <button class="btn btn-light" type="submit">Search</button>
+    </div>
+</form>
+
+<!-- Display the search query -->
+{% if search_query %}
+    <p>You searched for: <strong>{{ search_query }}</strong></p>
+{% endif %}
         </div>
     </div>
 

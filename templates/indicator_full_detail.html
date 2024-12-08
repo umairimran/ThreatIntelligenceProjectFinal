@@ -260,25 +260,23 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>External Source</th>
+                                
                                 <th>Link</th>
-                                <th>Type</th>
+                              
                                 <th>Tags</th>
-                                <th>Name</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
                             {% for ref in general_references %}
                             <tr>
-                                <td class="text-wrap">{{ ref['external_source'] }}</td>
+                               
                                 <td class="text-wrap">
                                     <a href="{{ ref['href'] }}" class="text-truncate d-block" style="max-width: 150px;">{{ ref['name'] }}</a>
                                 </td>
-                                <td class="text-wrap">{{ ref['type'] if ref['type'] else 'None' }}</td>
+                                
                                 <td class="text-wrap">{{ ref['tags'] | join(', ') }}</td>
-                                <td class="text-wrap" style="max-width: 150px;">
-                                    <a href="{{ ref['href'] }}" class="text-truncate d-block" style="max-width: 150px;">{{ ref['name'] }}</a>
-                                </td>
+                            
                                 
                             </tr>
                             {% endfor %}
@@ -309,7 +307,7 @@
                         <th>Author</th>
                         <th>CVE</th>
                         <th>Description</th>
-                        <th>URL</th>
+                      
                     </tr>
                 </thead>
                 <tbody>
@@ -319,7 +317,7 @@
                         <td>{{ exploit['author'] }}</td>
                         <td>{{ exploit['cve'] }}</td>
                         <td>{{ exploit['description'] }}</td>
-                       <td><a href="{{ exploit['url'] }}" target="_blank" style="pointer-events: none; color: inherit; text-decoration: underline;">View</a></td>
+                      
                     </tr>
                     {% endfor %}
                 </tbody>

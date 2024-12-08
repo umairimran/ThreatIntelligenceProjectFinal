@@ -44,10 +44,21 @@
             <form class="search-form" method="POST" action="/search_domains">
                 <div class="input-group mt-3">
                     <span class="input-group-text"><i class="fa fa-search"></i></span>
-                    <input class="form-control" type="text" name="search_query" placeholder="I am looking for.." required />
+                    <input 
+                        class="form-control" 
+                        type="text" 
+                        name="search_query" 
+                        placeholder="I am looking for..." 
+                        value="{{ search_query }}" 
+                        required 
+                    />
                     <button class="btn btn-light" type="submit">Search</button>
                 </div>
             </form>
+            <!-- Optional: Display the search query to the user -->
+{% if search_query %}
+<p class="mt-3">You searched for: <strong>{{ search_query }}</strong></p>
+{% endif %}
         </div>
     </div>
 
