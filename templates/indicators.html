@@ -16,7 +16,7 @@
                         <li class="nav-item"><a class="nav-link" href="/search_domains">DOMAIN</a></li>
                         <li class="nav-item"><a class="nav-link" href="/search_ip4">IPv4</a></li>
                         <li class="nav-item"><a class="nav-link" href="/search_hostnames">HOST NAME</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/logout">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -29,9 +29,12 @@
                 </form> -->
             </div>
 
-            <!-- <div>
+            <div>
                 {{ indicators_list | length }} Indicators Found
-            </div> -->
+            </div>
+            <div>
+                User Settings: {{ user_settings }}
+            </div>
             <form class="search-form" method="POST" action="/search_indicators">
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="fa fa-search"></i></span>
@@ -42,63 +45,76 @@
         </div>
     </div>
 
-    <div class="container mt-4">
+
+<div class="container mt-4">
+    <!-- Loop over each unique category -->
+    {% for category in unique_categories %}
+        <h2 class="mt-4">{{ category }}</h2> <!-- Display the category name -->
+
         <div class="row">
+            <!-- Loop over all indicators and filter them based on the category -->
             {% for indicator in indicators_list %}
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="card pulse even {{ 'bg-danger text-light' if loop.index <= 10 else 'bg-dark text-light' }}" style="height: 300px;">
-                    <div class="card-body d-flex flex-column">
-                        <h3 title="{{ indicator.indicator }}" class="text-truncate">
-                            <a href="#" class="text-light" onclick="event.preventDefault();"> <!-- Use text-light for better contrast -->
-                                {{ indicator.indicator }}
-                            </a>
-                        </h3>
-                        <div class="details-wrapper d-flex flex-column flex-grow-1">
-                            <div class="pulse-meta flex-grow-1">
-                                <ul class="list-unstyled d-flex justify-content-between flex-wrap">
-                                    <li class="mr-4 d-flex align-items-center">
-                                        <span class="indicator_type">Type:&nbsp;</span>
-                                        <span>&nbsp{{ indicator.base_indicator_type }}</span>
-                                    </li>
-                                    <li class="mr-4 d-flex align-items-center">
-                                        <span class="vulnerability"><i class="fa fa-circle" style="color: orange;"></i>&nbspVulnerability:&nbsp;</span>
-                                        <span>&nbsp{{ indicator.cvssv2_vulnerability }}</span>
-                                    </li>
-                                    <li class="mr-4 d-flex align-items-center">
-                                        <span><i class="fa fa-circle" style="color: red;"></i> Severity:&nbsp;</span>
-                                        <span>{{ indicator.cvssv3_base_severity }}</span>
-                                    </li>
-                                    <li class="mr-4 d-flex align-items-center">
-                                        <span><i class="fa fa-circle" style="color: yellow;"></i>&nbspAttack Complexity:&nbsp;</span>
-                                        <span>{{ indicator.cvssv3_attack_complexity }}</span>
-                                    </li>
-                                    <li class="mr-4 d-flex align-items-center">
-                                        <span><i class="fa fa-circle" style="color: green;"></i>&nbspExploitability Score:&nbsp;</span>
-                                        <span>{{ indicator.cvssv3_exploitability_score }}</span>
-                                    </li>
-                                    <li class="mr-4 d-flex align-items-center">
-                                        <span>Impact Score:&nbsp;</span>
-                                        <span>{{ indicator.cvssv3_impact_score }}</span>
-                                    </li>
-                                </ul>
-                            </div>
-        
-                            <div class="pulse-actions mt-3">
-                                <div class="d-flex justify-content-end">
-                                    <form method="POST" action="/cve">
-                                        <input type="hidden" name="indicator" value="{{ indicator.indicator }}">
-                                        <input type="hidden" name="base_indicator_type" value="{{ indicator.base_indicator_type }}">
-                                        <button type="submit" class="btn btn-danger">Details</button>
-                                    </form>
+                {% if indicator.category == category %}  <!-- Only display indicators belonging to the current category -->
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card pulse even {{ 'bg-dark text-light' }}" style="height: 300px;">
+                        <div class="card-body d-flex flex-column">
+                            <h3 title="{{ indicator.indicator }}" class="text-truncate">
+                                <a href="#" class="text-light" onclick="event.preventDefault();"> <!-- Use text-light for better contrast -->
+                                    {{ indicator.indicator }}
+                                </a>
+                            </h3>
+                            <div class="details-wrapper d-flex flex-column flex-grow-1">
+                                <div class="pulse-meta flex-grow-1">
+                                    <ul class="list-unstyled d-flex justify-content-between flex-wrap">
+                                        <li class="mr-4 d-flex align-items-center">
+                                            <span class="indicator_type">Type:&nbsp;</span>
+                                            <span>&nbsp{{ indicator.base_indicator_type }}</span>
+                                        </li>
+                                        <li class="mr-4 d-flex align-items-center">
+                                            <span class="vulnerability"><i class="fa fa-circle" style="color: orange;"></i>&nbspVulnerability:&nbsp;</span>
+                                            <span>&nbsp{{ indicator.cvssv2_vulnerability }}</span>
+                                        </li>
+                                        <li class="mr-4 d-flex align-items-center">
+                                            <span><i class="fa fa-circle" style="color: red;"></i> Severity:&nbsp;</span>
+                                            <span>{{ indicator.cvssv3_base_severity }}</span>
+                                        </li>
+                                        <li class="mr-4 d-flex align-items-center">
+                                            <span><i class="fa fa-circle" style="color: yellow;"></i>&nbspAttack Complexity:&nbsp;</span>
+                                            <span>{{ indicator.cvssv3_attack_complexity }}</span>
+                                        </li>
+                                        <li class="mr-4 d-flex align-items-center">
+                                            <span><i class="fa fa-circle" style="color: green;"></i>&nbspExploitability Score:&nbsp;</span>
+                                            <span>{{ indicator.cvssv3_exploitability_score }}</span>
+                                        </li>
+                                        <li class="mr-4 d-flex align-items-center">
+                                            <span>Impact Score:&nbsp;</span>
+                                            <span>{{ indicator.cvssv3_impact_score }}</span>
+                                        </li>
+                                    </ul>
                                 </div>
+
+                                <div class="pulse-actions mt-3">
+                                    <div class="d-flex justify-content-end">
+                                        <form method="POST" action="/cve">
+                                            <input type="hidden" name="indicator" value="{{ indicator.indicator }}">
+                                            <input type="hidden" name="base_indicator_type" value="{{ indicator.base_indicator_type }}">
+                                            <button type="submit" class="btn btn-danger">Details</button>
+                                        </form>
+                                    </div>
+                                </div>
+
                             </div>
-        
                         </div>
                     </div>
                 </div>
-            </div>
+                {% endif %}
             {% endfor %}
         </div>
+    {% endfor %}
+</div>
+
+    
+
     </div>
 
     <script src="{{ url_for('static', filename='/js/bootstrap.min.js') }}"></script>

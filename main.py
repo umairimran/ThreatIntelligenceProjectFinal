@@ -27,7 +27,7 @@ stop_event = Event()
 clear_session_flag = True
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 app.secret_key = '123456789'
-# Create the users table when the app starts
+
 
 users = retrieve_users() 
 @app.route('/login', methods=['GET', 'POST'])
@@ -203,7 +203,7 @@ def cve_page():
         general_cvss_confidentiality_impact = safe_get('general.cvss.Confidentiality-Impact')
         general_cvss_integrity_impact = safe_get('general.cvss.Integrity-Impact')
         general_cvss_vector_string = safe_get('general.cvss.vectorString')
-        # Assign random values directly using get_random_value function
+
         general_cvssv2_ac_insuf_info = get_value('general.cvssv2.acInsufInfo')
         general_cvssv2_access_complexity = get_value('general.cvssv2.cvssV2.accessComplexity')
         general_cvssv2_access_vector = get_value('general.cvssv2.cvssV2.accessVector')
@@ -320,56 +320,84 @@ def cve_page():
                                general_exploits=general_exploits,
                                general_epss=general_epss)
 
+
+from collections import defaultdict
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @app.route("/search_indicators", methods=['GET', 'POST'])
 def search_indicators():
-    
     if request.method == 'GET':
-        # Fetch user settings and show relevant indicators based on those settings
-        # Placeholder: get user settings from database (not implemented)
-        # Example: user_settings = get_user_settings(user_id)
-        username=session['username']
-        users=retrieve_users()
+        username = session['username']
+        users = retrieve_users()
         user_dict = {user[1]: {'password': user[2], 'email': user[3], 'system': user[4], 'service': user[5], 'indicator': user[6]} for user in users}
         session['system'] = user_dict[username]['system']
         session['service'] = user_dict[username]['service']
         session['indicator'] = user_dict[username]['indicator']
         query = " ".join([session['system'], session['service'], session['indicator']])
-        print("Getting of :",query)  # Query might be based on user preferences
+        print("Getting of:", query)  # Query might be based on user preferences
+        user_settings = query
 
     if request.method == 'POST':
         # Get the search query from the search form
         query = request.form.get('search_query', '')
         print(f"Received POST request with search query: {query}")
-        
+        user_settings = " ".join([session['system'], session['service'], session['indicator']])
         # You can fetch results from your database and cache them for future requests
-        # Example: store the result in cache for future faster access
 
     # Fetch indicators from cache or database based on query
-  
     indicators_df = get_cleaned_indicator_data_from_database(query)
     indicators_list = []
- # Sort by the entire `general.date_modified` column in ascending order
+
+    # Sort by the entire `general.date_modified` column in descending order
     indicators_df = indicators_df.sort_values(by='general.date_modified', ascending=False)
     indicators_df = indicators_df.drop_duplicates(subset='general.base_indicator.indicator', keep='first')
-   
- 
+  
     # Check if DataFrame is not empty or null
     if indicators_df is not None and not indicators_df.empty:
-        # Iterate through each row in the DataFrame
-        for index, row in indicators_df.iterrows():
-            # Extract specific values from the current row with default fallback values
-            indicators_list.append({
-                'indicator': row.get('general.base_indicator.indicator', ''),
-                'base_indicator_type': row.get('general.base_indicator.type', ''),
-                'cvssv2_vulnerability': row.get('general.cvssv2.severity', 'N/A'),
-                'cvssv3_attack_complexity': row.get('general.cvssv3.cvssV3.attackComplexity', 'N/A'),
-                'cvssv3_base_severity': row.get('general.cvssv3.cvssV3.baseSeverity', 'N/A'),
-                'cvssv3_exploitability_score': float(row.get('general.cvssv3.exploitabilityScore', 0.0)),
-                'cvssv3_impact_score': float(row.get('general.cvssv3.impactScore', 0.0))
-            })
+    # Iterate through each row in the DataFrame
+      for index, row in indicators_df.iterrows():
+        # Extract specific values from the current row with default fallback values
+        indicators_list.append({
+            'indicator': row.get('general.base_indicator.indicator', ''),
+            'base_indicator_type': row.get('general.base_indicator.type', ''),
+            'cvssv2_vulnerability': row.get('general.cvssv2.severity', 'N/A'),
+            'cvssv3_attack_complexity': row.get('general.cvssv3.cvssV3.attackComplexity', 'N/A'),
+            'cvssv3_base_severity': row.get('general.cvssv3.cvssV3.baseSeverity', 'N/A'),
+            'cvssv3_exploitability_score': float(row.get('general.cvssv3.exploitabilityScore', 0.0)),
+            'cvssv3_impact_score': float(row.get('general.cvssv3.impactScore', 0.0)),
+            'category': row.get('category', 'Uncategorized')  # Assuming 'category' is the correct field name
+        })
 
-    # Return the indicators to be rendered on the indicators.html template
-    return render_template('indicators.html', indicators_list=indicators_list)
+
+    # Directly pass the indicators to the template
+    print(indicators_df['category'])
+    unique_categories = indicators_df['category'].unique()
+
+    return render_template('indicators.html', indicators_list=indicators_list,unique_categories=unique_categories, user_settings=user_settings)
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/test',methods=['GET','POST'])
 def test():
@@ -801,22 +829,23 @@ def events():
     return Response(generate(), mimetype='text/event-stream')
 
 if __name__ == '__main__':
-    processes = []
-    days = [1, 2, 3,4,5,6,7,8,9,10]
+    run_flask_app()
+    # processes = []
+    # days = [1, 2, 3,4,5,6,7,8,9,10]
 
-    for each in days:
-        process = Process(target=refresh_automatically, args=(each,))
-        process.start()
-        processes.append(process)
+    # for each in days:
+    #     process = Process(target=refresh_automatically, args=(each,))
+    #     process.start()
+    #     processes.append(process)
 
-    flask_process = Process(target=run_flask_app)
-    flask_process.start()
+    # flask_process = Process(target=run_flask_app)
+    # flask_process.start()
 
-    try:
-        time.sleep(300)  # Run threads for 300 seconds
-        stop_event.set()  # Signal threads to stop
-    finally:
-        for process in processes:
-            process.join()  # Wait for threads to complete
+    # try:
+    #     time.sleep(300)  # Run threads for 300 seconds
+    #     stop_event.set()  # Signal threads to stop
+    # finally:
+    #     for process in processes:
+    #         process.join()  # Wait for threads to complete
 
-        print("Background processes have been stopped, but Flask continues to run.")
+    #     print("Background processes have been stopped, but Flask continues to run.")

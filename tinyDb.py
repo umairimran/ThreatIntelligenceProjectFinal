@@ -1,6 +1,9 @@
 from tinydb import *
 from functions import *
 from OTXv2 import *
+import stanza
+
+
 from admin import * 
 from flask import session
 from db_lock import *
@@ -15,7 +18,11 @@ Indicator= Query()
 from dotenv import load_dotenv
 load_dotenv()
 otx_object = OTXv2(os.getenv('os.getenv('"API_KEY"')'))
+# Download the English model
+stanza.download('en')
 
+# Initialize the pipeline
+nlp = stanza.Pipeline('en')
 def insert_indicators_in_table(modified_date, indicator_type):
     """
     Inserts indicators into the database if they do not already exist.
@@ -75,29 +82,21 @@ def insert_indicators_in_table(modified_date, indicator_type):
                     print(f"Error processing indicator: {e}")
 
 def search_for_indicator(query):
-    """
-    Searches for an indicator in the database based on multiple terms in the query.
 
-    Parameters:
-    query (str): The query to search for, containing multiple terms.
 
-    Returns:
-    list: A list of dictionaries containing the search results.
-    """
-    # Return all indicators if the query is empty
-    if not query.strip():  # Check if query is empty or contains only whitespace
+    if not query.strip(): 
         with db_lock:
-            return indicators_table.all()  # Return all indicators
+            return indicators_table.all()  
 
-    terms = query.split()  # Split the query into individual terms
-    patterns = [re.compile(term, re.IGNORECASE) for term in terms]  # Create a regex for each term
+    terms = query.split()  
+    patterns = [re.compile(term, re.IGNORECASE) for term in terms]  
     results = []
     
     with db_lock:
         indicators_all = indicators_table.all()
     
     for doc in indicators_all:
-        # Normalize JSON data for easier access
+      
         df = json_normalize(doc)
         
         df[df['general.base_indicator.type'] == 'CVE']
@@ -118,16 +117,82 @@ def search_for_indicator(query):
             results.append(doc)
 
     return results
-def get_cleaned_indicator_data_from_database(query):
-    ''''
-    This function takes input as query and searches by using the search for indicator function and then returns the cleaned data in the form of a dataframe
 
-    return : dataframe on each row is a complete indicator full details of a whole section
+
+import pandas as pd
+from pandas import json_normalize
+import pandas as pd
+from pandas import json_normalize
+
+# Define predefined phrases
+PREDEFINED_PHRASES = ["windows 11", "sql server", "apache server", "sql injection"]
+
+def get_cleaned_indicator_data_from_database(query):
     '''
-    raw_indicators=search_for_indicator(query)
-    df=json_normalize(raw_indicators)
-    return df
+    This function takes input as query and searches by using the search_for_indicator function 
+    and then returns the cleaned data in the form of a dataframe.
     
+    return: dataframe where each row is a complete indicator with an additional 'category' column
+    '''
+    # Dictionary to store the individual terms from the query
+    query_keywords = {}
+    
+    # Split the query into individual words and create a dictionary of keywords
+    for index, each in enumerate(query.split()):
+        query_keywords[each] = each
+    
+    print("Query Keywords:", query_keywords)
+    
+    # Get raw indicators using the search_for_indicator function
+    raw_indicators = search_for_indicator(query)
+    
+    # Normalize raw indicators into a dataframe
+    df = json_normalize(raw_indicators)
+    
+    # Add a new column 'category' initialized to None or empty
+    df['category'] = None
+    
+    # Step 1: First, check for matches with predefined phrases
+    for phrase in PREDEFINED_PHRASES:
+        for idx, row in df.iterrows():
+            description = str(row.get('general.description', ''))
+            products = str(row.get('general.products', ''))
+            
+            # Check if any predefined phrase exists in description or products
+            if phrase.lower() in description.lower() or phrase.lower() in products.lower():
+                # If a match is found, assign the category based on the predefined phrase
+                if pd.isnull(df.at[idx, 'category']):
+                    df.at[idx, 'category'] = phrase
+                else:
+                    # Optionally, append the category if there are multiple matches
+                    df.at[idx, 'category'] = str(df.at[idx, 'category']) + ', ' + phrase
+    
+    # Step 2: Now check for individual query terms
+    for each in query_keywords:
+        for idx, row in df.iterrows():
+            description = str(row.get('general.description', ''))
+            products = str(row.get('general.products', ''))
+            
+            # Check if the term exists in description or products field
+            if each.lower() in description.lower() or each.lower() in products.lower():
+                # If a match is found, assign the category based on the query term
+                if pd.isnull(df.at[idx, 'category']):
+                    df.at[idx, 'category'] = query_keywords[each]
+                else:
+                    # Optionally, append the category if there are multiple matches
+                    df.at[idx, 'category'] = str(df.at[idx, 'category']) + ', ' + query_keywords[each]
+    
+    # Clean up categories by removing duplicates and unnecessary commas
+    df['category'] = df['category'].apply(lambda x: ', '.join(sorted(set(str(x).split(', ')))) if isinstance(x, str) else x)
+    
+    # Optionally, further clean up by removing unwanted terms or formatting
+    # For example, remove specific terms from category:
+    # df['category'] = df['category'].apply(lambda x: x.replace('windows', 'Windows') if isinstance(x, str) else x)
+    
+    print("Cleaned DataFrame Categories:", df['category'])
+    return df
+
+
 
 def get_single_indicator_full_details(data):
     df=json_normalize(data)
