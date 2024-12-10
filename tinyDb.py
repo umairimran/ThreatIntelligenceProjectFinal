@@ -1,7 +1,7 @@
 from tinydb import *
 from functions import *
 from OTXv2 import *
-import stanza
+
 
 
 from admin import * 
@@ -18,11 +18,7 @@ Indicator= Query()
 from dotenv import load_dotenv
 load_dotenv()
 otx_object = OTXv2(os.getenv('os.getenv('"API_KEY"')'))
-# Download the English model
-stanza.download('en')
 
-# Initialize the pipeline
-nlp = stanza.Pipeline('en')
 def insert_indicators_in_table(modified_date, indicator_type):
     """
     Inserts indicators into the database if they do not already exist.
@@ -123,74 +119,79 @@ import pandas as pd
 from pandas import json_normalize
 import pandas as pd
 from pandas import json_normalize
-
+def get_formatted_query(query):
+    # Step 1: Split the query into words
+    query_words = query.split()
+    cleaned_query_keywords = {}
+    
+    # Step 2: Iterate through words and look for numbers
+    index = 0
+    while index < len(query_words):
+        current_word = query_words[index]
+        
+        # Check if the current word is followed by a number
+        if index + 1 < len(query_words) and re.match(r'\d+', query_words[index + 1]):  # next word is a number
+            combined_word = f"{current_word} {query_words[index + 1]}"
+            cleaned_query_keywords[combined_word] = combined_word
+            index += 2  # Skip the next word since it's part of the current combined word
+        else:
+            cleaned_query_keywords[current_word] = current_word
+            index += 1
+    
+    print("Cleaned Query Keywords:", cleaned_query_keywords)
+    return cleaned_query_keywords
 # Define predefined phrases
 PREDEFINED_PHRASES = ["windows 11", "sql server", "apache server", "sql injection"]
 
 def get_cleaned_indicator_data_from_database(query):
-    '''
-    This function takes input as query and searches by using the search_for_indicator function 
-    and then returns the cleaned data in the form of a dataframe.
-    
-    return: dataframe where each row is a complete indicator with an additional 'category' column
-    '''
-    # Dictionary to store the individual terms from the query
-    query_keywords = {}
-    
-    # Split the query into individual words and create a dictionary of keywords
-    for index, each in enumerate(query.split()):
-        query_keywords[each] = each
-    
-    print("Query Keywords:", query_keywords)
-    
-    # Get raw indicators using the search_for_indicator function
+    # Get the cleaned query keywords (the terms to look for)
+    query_keywords = get_formatted_query(query)
+
+    # Fetch raw indicators based on the query
     raw_indicators = search_for_indicator(query)
-    
-    # Normalize raw indicators into a dataframe
+
+    # Normalize the raw data into a DataFrame
     df = json_normalize(raw_indicators)
-    
-    # Add a new column 'category' initialized to None or empty
-    df['category'] = None
-    
-    # Step 1: First, check for matches with predefined phrases
-    for phrase in PREDEFINED_PHRASES:
-        for idx, row in df.iterrows():
-            description = str(row.get('general.description', ''))
-            products = str(row.get('general.products', ''))
-            
-            # Check if any predefined phrase exists in description or products
-            if phrase.lower() in description.lower() or phrase.lower() in products.lower():
-                # If a match is found, assign the category based on the predefined phrase
-                if pd.isnull(df.at[idx, 'category']):
-                    df.at[idx, 'category'] = phrase
-                else:
-                    # Optionally, append the category if there are multiple matches
-                    df.at[idx, 'category'] = str(df.at[idx, 'category']) + ', ' + phrase
-    
-    # Step 2: Now check for individual query terms
+
+    # Ensure the 'category' column exists, but we won't set it to None
+    # Instead, we'll initialize it with empty strings if it doesn't already exist
+    if 'category' not in df.columns:
+        df['category'] = ''
+
+    # Loop through each query term (keyword) and check if it appears in the description or products fields
     for each in query_keywords:
         for idx, row in df.iterrows():
             description = str(row.get('general.description', ''))
             products = str(row.get('general.products', ''))
             
-            # Check if the term exists in description or products field
+            # Check if the query term exists in the description or products field
             if each.lower() in description.lower() or each.lower() in products.lower():
-                # If a match is found, assign the category based on the query term
-                if pd.isnull(df.at[idx, 'category']):
-                    df.at[idx, 'category'] = query_keywords[each]
+                # If the category already has some values, append the new one
+                if df.at[idx, 'category']:
+                    df.at[idx, 'category'] += ', ' + query_keywords[each]
                 else:
-                    # Optionally, append the category if there are multiple matches
-                    df.at[idx, 'category'] = str(df.at[idx, 'category']) + ', ' + query_keywords[each]
+                    # If the category is empty, set it to the first matching category term
+                    df.at[idx, 'category'] = query_keywords[each]
     
-    # Clean up categories by removing duplicates and unnecessary commas
-    df['category'] = df['category'].apply(lambda x: ', '.join(sorted(set(str(x).split(', ')))) if isinstance(x, str) else x)
-    
-    # Optionally, further clean up by removing unwanted terms or formatting
-    # For example, remove specific terms from category:
-    # df['category'] = df['category'].apply(lambda x: x.replace('windows', 'Windows') if isinstance(x, str) else x)
-    
-    print("Cleaned DataFrame Categories:", df['category'])
+    # After all the matching, clean up the 'category' column: remove duplicates, sort, and join
+    df['category'] = df['category'].apply(
+        lambda x: ', '.join(sorted(set(str(x).split(', ')))) if isinstance(x, str) else x
+    )
+    df = df[df['category'].str.strip().ne('')]
     return df
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

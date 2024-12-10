@@ -17,6 +17,21 @@
                         <li class="nav-item"><a class="nav-link" href="/search_ip4">IPv4</a></li>
                         <li class="nav-item"><a class="nav-link" href="/search_hostnames">HOST NAME</a></li>
                         <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                        {% if user_logged_in %}
+                        <!-- Display username with circle icon if user is logged in -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">
+                                <!-- Circle icon next to username -->
+                                <span class="user-icon" style="border-radius: 50%; width: 30px; height: 30px; background-color: #007bff; color: white; display: inline-block; text-align: center; line-height: 30px;">
+                                    {{ user_logged_in[0].upper() }} <!-- Show the first letter of the username in the circle -->
+                                </span>
+                                {{ user_logged_in }} <!-- Show the username -->
+                            </a>
+                        </li>
+                    {% else %}
+                        <!-- If user is not logged in, show login link -->
+                        <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                    {% endif %}
                     </ul>
                 </div>
             </div>

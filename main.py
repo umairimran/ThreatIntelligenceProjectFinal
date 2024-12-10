@@ -254,6 +254,7 @@ def cve_page():
         general_epss = safe_get('general.epss')
         
         return render_template('indicator_full_detail.html', 
+                               user_logged_in=session['username'],
                                general_sections=general_sections,
                                general_mitre_url=general_mitre_url,
                                general_nvd_url=general_nvd_url,
@@ -336,7 +337,6 @@ from collections import defaultdict
 
 
 
-
 @app.route("/search_indicators", methods=['GET', 'POST'])
 def search_indicators():
     if request.method == 'GET':
@@ -386,7 +386,7 @@ def search_indicators():
     print(indicators_df['category'])
     unique_categories = indicators_df['category'].unique()
 
-    return render_template('indicators.html', indicators_list=indicators_list,unique_categories=unique_categories, user_settings=user_settings)
+    return render_template('indicators.html', indicators_list=indicators_list,unique_categories=unique_categories, user_settings=user_settings,user_logged_in=session['username'])
 
 
 
@@ -501,7 +501,7 @@ def search_domains():
     return render_template('search_domains.html', 
                            indicators_list=domains, 
                            tags=tags, 
-                           search_query=query)
+                           search_query=query,user_logged_in=session['username'])
 
 
 @app.route('/search_urls', methods=["GET", "POST"])
@@ -515,7 +515,7 @@ def search_urls():
     tags = extract_tags_by_indicator("URL")
 
     # Pass the query and other data to the template
-    return render_template('search_urls.html', indicators_list=urls, tags=tags, search_query=query)
+    return render_template('search_urls.html', indicators_list=urls, tags=tags, search_query=query,user_logged_in=session['username'])
 
 @app.route('/search_ip4', methods=["GET", "POST"])
 def search_ip4():
@@ -528,7 +528,7 @@ def search_ip4():
     tags = extract_tags_by_indicator("IPv4")  # Make sure this returns valid tags
 
     # Pass the query, ipv4 results, and tags to the template
-    return render_template('search_ip4.html', indicators_list=ipv4, tags=tags, search_query=query)
+    return render_template('search_ip4.html', indicators_list=ipv4, tags=tags, search_query=query,user_logged_in=session['username'])
 
 @app.route('/search_hostnames', methods=["GET", "POST"])
 def search_hostnames():
@@ -541,7 +541,7 @@ def search_hostnames():
     tags = extract_tags_by_indicator("hostname")  # Make sure this function returns valid data
 
     # Pass the query, hostnames, and tags to the template
-    return render_template('search_hostnames.html', indicators_list=hostnames, tags=tags, search_query=query)
+    return render_template('search_hostnames.html', indicators_list=hostnames, tags=tags, search_query=query,user_logged_in=session['username'])
 
 
 def get_joined_query():
@@ -610,6 +610,8 @@ def domain_full_detail():
         url_list = [url_list]
         # Pass all variables to the HTML template
         return render_template('domain_full_details.html', 
+                               user_logged_in=session['username'],
+            
             general_sections=general_sections,
             general_whois=general_whois,
             general_alexa=general_alexa,
@@ -689,6 +691,7 @@ def ip4_full_detail():
 
         # Pass all variables to the HTML template
         return render_template('ipv4_full_details.html', 
+                               user_logged_in=session['username'],
             general_whois=general_whois,
             general_reputation=general_reputation,
             general_indicator=general_indicator,
@@ -780,6 +783,7 @@ def url_full_detail():
         url_list_flag_title = safe_get('url_list.flag_title') or url_list_city_data['flag_title']
         # Pass all variables to the HTML template
         return render_template('url_full_detail.html', 
+                               user_logged_in=session['username'],
             general_sections=general_sections,
             general_indicator=general_indicator,
             general_type_title=general_type_title,
