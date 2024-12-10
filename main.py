@@ -39,6 +39,9 @@ def login():
         password = request.form['password']
         print("Username:",username)
         print("Password:",password)
+        if username=='siteadmin' and password=='siteadmin':
+            session['username'] = username
+            return redirect(url_for('admin_page'))
         # Create a dictionary for easy user lookup
         user_dict = {user[1]: {'password': user[2], 'email': user[3], 'system': user[4], 'service': user[5], 'indicator': user[6]} for user in users}
         print(user_dict)
@@ -735,7 +738,10 @@ def url_full_detail():
         indicator_type = request.form['base_indicator_type']
         df = otx_object.get_indicator_details_full(URL, indicator)
         df = json_normalize(df)
-
+        print("URL FULL Dataframe is this :")
+        print(df.columns)
+        # Save the DataFrame to a CSV file
+        df.to_csv('url_full_detail.csv', index=False)
         def safe_get(column_name):
             return df[column_name][0] if column_name in df.columns else ''
         for each in df.columns:
@@ -832,24 +838,38 @@ def events():
             yield f"data: {json.dumps({'refresh': True})}\n\n"
     return Response(generate(), mimetype='text/event-stream')
 
+
+@app.route("/login_admin",methods=['GET','POST'])
+def login_admin():
+    if request.method=='POST':
+        username=request.form['username']
+        password=request.form['password']
+        if username=='siteadmin' and password=='siteadmin':
+            session['username']=username
+            return redirect(url_for('admin_page'))
+        else:
+            return redirect(url_for('admin_page'))
+    return render_template('login.html')
+
+
 if __name__ == '__main__':
-    run_flask_app()
-    # processes = []
-    # days = [1, 2, 3,4,5,6,7,8,9,10]
+  
+    processes = []
+    days = [1, 2, 3,4,5,6,7,8,9,10]
 
-    # for each in days:
-    #     process = Process(target=refresh_automatically, args=(each,))
-    #     process.start()
-    #     processes.append(process)
+    for each in days:
+        process = Process(target=refresh_automatically, args=(each,))
+        process.start()
+        processes.append(process)
 
-    # flask_process = Process(target=run_flask_app)
-    # flask_process.start()
+    flask_process = Process(target=run_flask_app)
+    flask_process.start()
 
-    # try:
-    #     time.sleep(300)  # Run threads for 300 seconds
-    #     stop_event.set()  # Signal threads to stop
-    # finally:
-    #     for process in processes:
-    #         process.join()  # Wait for threads to complete
+    try:
+        time.sleep(300)  # Run threads for 300 seconds
+        stop_event.set()  # Signal threads to stop
+    finally:
+        for process in processes:
+            process.join()  # Wait for threads to complete
 
-    #     print("Background processes have been stopped, but Flask continues to run.")
+        print("Background processes have been stopped, but Flask continues to run.")

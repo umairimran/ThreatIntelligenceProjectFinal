@@ -224,6 +224,7 @@ def search_url_with_query(query: str):
         data=indicators_table.all()
         df=json_normalize(data)
         df=df.sort_values(by='general.date_modified', ascending=False)
+    
         return get_dataframe_by_indicator(df, 'URL',query)
 
 
@@ -305,6 +306,11 @@ def get_dataframe_by_indicator(dataframe, indicator, query=''):
             indicators_list.append(indicator_data)
 
     return indicators_list
+
+
+
+
+
 def extract_tags_by_indicator(indicator):
     with db_lock:
         df = indicators_table.all()
