@@ -57,7 +57,7 @@
         <div class="row"> <!-- Start of the row -->
             {% for indicator in indicators_list %}
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4"> <!-- Column for each card -->
-                <div class="card pulse even {{ 'bg-danger text-light' if loop.index <= 10 else 'bg-primary text-light' }}" style="height: 350px;"> <!-- Set a fixed height -->
+                <div class="card pulse even {{ 'bg-primary text-light' }}" style="height: 350px;"> <!-- Set a fixed height -->
                     <div class="card-body d-flex flex-column">
                         <h3 title="{{ indicator.indicator }}" class="text-truncate">
                             <a href="#" class="text-light" onclick="event.preventDefault();">

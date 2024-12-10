@@ -215,7 +215,7 @@ def search_domain_with_query(query: str):
     with db_lock:
         data=indicators_table.all()
         df=json_normalize(data)
-        df=df.sort_values(by='general.date_modified', ascending=False)
+        df = df.sample(frac=1).reset_index(drop=True)
         return get_dataframe_by_indicator(df, 'domain',query)
 
 
@@ -223,7 +223,7 @@ def search_url_with_query(query: str):
     with db_lock:
         data=indicators_table.all()
         df=json_normalize(data)
-        df=df.sort_values(by='general.date_modified', ascending=False)
+        df = df.sample(frac=1).reset_index(drop=True)
     
         return get_dataframe_by_indicator(df, 'URL',query)
 
@@ -232,7 +232,7 @@ def search_ip4_with_query(query: str):
     with db_lock:
         data=indicators_table.all()
         df=json_normalize(data)
-        df=df.sort_values(by='general.date_modified', ascending=False)
+        df = df.sample(frac=1).reset_index(drop=True)
         df= get_dataframe_by_indicator(df, 'IPv4',query)
         
         return df
@@ -242,7 +242,7 @@ def search_hostnames_with_query(query: str):
     with db_lock:
         data=indicators_table.all()
         df=json_normalize(data)
-        df=df.sort_values(by='general.date_modified', ascending=False)
+        df = df.sample(frac=1).reset_index(drop=True)
         
         return get_dataframe_by_indicator(df, 'hostname',query)
 
@@ -306,8 +306,6 @@ def get_dataframe_by_indicator(dataframe, indicator, query=''):
             indicators_list.append(indicator_data)
 
     return indicators_list
-
-
 
 
 
