@@ -20,11 +20,11 @@
                     <button type="submit" class="btn btn-danger">Refresh Database</button> <!-- Changed to red button -->
                 <!-- </form> --> 
             </div>
-            <!-- <div class="text-center mb-3">
-                {{ indicators_list | length }} Indicators Found
-            </div> -->
+            <div class="text-center mb-3">
+                {{ indicators_list | length }} Ipv4 Found
+            </div>
             <div class="d-flex flex-wrap align-items-center justify-content-center mb-3">
-                <h4 class="me-2" style="font-size: 14px;">Common Searches:</h4>
+                <h4 class="me-2" style="font-size: 14px;">Searchable Tags:</h4>
                 {% for tag in tags %}
                     <span class="badge bg-danger me-2" style="font-size: 12px;">
                         {{ tag }}

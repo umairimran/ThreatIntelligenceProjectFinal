@@ -761,7 +761,7 @@ def url_full_detail():
         print("URL FULL Dataframe is this :")
         print(df.columns)
         # Save the DataFrame to a CSV file
-        df.to_csv('url_full_detail.csv', index=False)
+       
         def safe_get(column_name):
             return df[column_name][0] if column_name in df.columns else ''
         for each in df.columns:

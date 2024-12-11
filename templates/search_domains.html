@@ -20,11 +20,11 @@
                     <button type="submit" class="btn btn-danger">Refresh Database</button>
                 </form> -->
             </div>
-            <!-- <div style="font-size: 14px; margin-bottom: 5px;">
-                {{ indicators_list | length }} Indicators Found
-            </div> -->
+            <div style="font-size: 14px; margin-bottom: 5px;">
+                {{ indicators_list | length }} Domains Found
+            </div>
             <div style="display: flex; flex-wrap: wrap; align-items: center; margin-top: 5px;">
-                <h4 style="margin-right: 5px; font-size: 14px;">Common Searches:</h4>
+                <h4 style="margin-right: 5px; font-size: 14px;">Searchable Tags:</h4>
                 {% for tag in tags %}
                     <span class="badge bg-danger" style="margin-right: 5px; font-size: 12px;">
                         {{ tag }}
