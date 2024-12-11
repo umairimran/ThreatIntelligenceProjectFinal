@@ -367,27 +367,47 @@ def search_indicators():
     # Sort by the entire `general.date_modified` column in descending order
     indicators_df = indicators_df.sort_values(by='general.date_modified', ascending=False)
     indicators_df = indicators_df.drop_duplicates(subset='general.base_indicator.indicator', keep='first')
-  
-    # Check if DataFrame is not empty or null
-    if indicators_df is not None and not indicators_df.empty:
-    # Iterate through each row in the DataFrame
-      for index, row in indicators_df.iterrows():
-        # Extract specific values from the current row with default fallback values
-        indicators_list.append({
-            'indicator': row.get('general.base_indicator.indicator', ''),
-            'base_indicator_type': row.get('general.base_indicator.type', ''),
-            'cvssv2_vulnerability': row.get('general.cvssv2.severity', 'N/A'),
-            'cvssv3_attack_complexity': row.get('general.cvssv3.cvssV3.attackComplexity', 'N/A'),
-            'cvssv3_base_severity': row.get('general.cvssv3.cvssV3.baseSeverity', 'N/A'),
-            'cvssv3_exploitability_score': float(row.get('general.cvssv3.exploitabilityScore', 0.0)),
-            'cvssv3_impact_score': float(row.get('general.cvssv3.impactScore', 0.0)),
-            'category': row.get('category', 'Uncategorized')  # Assuming 'category' is the correct field name
-        })
+    unique_categories=[]
+    if query==' ':
+            # Check if DataFrame is not empty or null
+        if indicators_df is not None and not indicators_df.empty:
+        # Iterate through each row in the DataFrame
+            for index, row in indicators_df.iterrows():
+                # Extract specific values from the current row with default fallback values
+                indicators_list.append({
+                    'indicator': row.get('general.base_indicator.indicator', ''),
+                    'base_indicator_type': row.get('general.base_indicator.type', ''),
+                    'cvssv2_vulnerability': row.get('general.cvssv2.severity', 'N/A'),
+                    'cvssv3_attack_complexity': row.get('general.cvssv3.cvssV3.attackComplexity', 'N/A'),
+                    'cvssv3_base_severity': row.get('general.cvssv3.cvssV3.baseSeverity', 'N/A'),
+                    'cvssv3_exploitability_score': float(row.get('general.cvssv3.exploitabilityScore', 0.0)),
+                    'cvssv3_impact_score': float(row.get('general.cvssv3.impactScore', 0.0)),
+                })
+            return render_template('indicators_all_categories.html', indicators_list=indicators_list,unique_categories=unique_categories, user_settings=user_settings,user_logged_in=session['username'])
 
 
-    # Directly pass the indicators to the template
-    print(indicators_df['category'])
-    unique_categories = indicators_df['category'].unique()
+
+    else:
+        # Check if DataFrame is not empty or null
+        if indicators_df is not None and not indicators_df.empty:
+        # Iterate through each row in the DataFrame
+            for index, row in indicators_df.iterrows():
+                # Extract specific values from the current row with default fallback values
+                indicators_list.append({
+                    'indicator': row.get('general.base_indicator.indicator', ''),
+                    'base_indicator_type': row.get('general.base_indicator.type', ''),
+                    'cvssv2_vulnerability': row.get('general.cvssv2.severity', 'N/A'),
+                    'cvssv3_attack_complexity': row.get('general.cvssv3.cvssV3.attackComplexity', 'N/A'),
+                    'cvssv3_base_severity': row.get('general.cvssv3.cvssV3.baseSeverity', 'N/A'),
+                    'cvssv3_exploitability_score': float(row.get('general.cvssv3.exploitabilityScore', 0.0)),
+                    'cvssv3_impact_score': float(row.get('general.cvssv3.impactScore', 0.0)),
+                    'category': row.get('category', 'Uncategorized')  # Assuming 'category' is the correct field name
+                })
+
+
+        # Directly pass the indicators to the template
+        print(indicators_df['category'])
+        unique_categories = indicators_df['category'].unique()
 
     return render_template('indicators.html', indicators_list=indicators_list,unique_categories=unique_categories, user_settings=user_settings,user_logged_in=session['username'])
 
@@ -853,23 +873,24 @@ def login_admin():
 
 
 if __name__ == '__main__':
-  
-    processes = []
-    days = [1, 2, 3,4,5,6,7,8,9,10]
+    
+    run_flask_app()
+    # processes = []
+    # days = [1, 2, 3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
 
-    for each in days:
-        process = Process(target=refresh_automatically, args=(each,))
-        process.start()
-        processes.append(process)
+    # for each in days:
+    #     process = Process(target=refresh_automatically, args=(each,))
+    #     process.start()
+    #     processes.append(process)
 
-    flask_process = Process(target=run_flask_app)
-    flask_process.start()
+    # flask_process = Process(target=run_flask_app)
+    # flask_process.start()
 
-    try:
-        time.sleep(300)  # Run threads for 300 seconds
-        stop_event.set()  # Signal threads to stop
-    finally:
-        for process in processes:
-            process.join()  # Wait for threads to complete
+    # try:
+    #     time.sleep(10000)  # Run threads for 300 seconds
+    #     stop_event.set()  # Signal threads to stop
+    # finally:
+    #     for process in processes:
+    #         process.join()  # Wait for threads to complete
 
-        print("Background processes have been stopped, but Flask continues to run.")
+    #     print("Background processes have been stopped, but Flask continues to run.")

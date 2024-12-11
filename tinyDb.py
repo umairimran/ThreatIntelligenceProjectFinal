@@ -32,11 +32,12 @@ def insert_indicators_in_table(modified_date, indicator_type):
     """
     # Retrieve full details of indicators based on the modified date and type
     indicator_types = [
+         IPv4,
        
     DOMAIN,
     HOSTNAME,
     URL,
-   # IPv4,
+   
     CVE 
     ]
     
@@ -144,6 +145,12 @@ def get_formatted_query(query):
 PREDEFINED_PHRASES = ["windows 11", "sql server", "apache server", "sql injection"]
 
 def get_cleaned_indicator_data_from_database(query):
+    if query==' ':
+         raw_indicators=search_for_indicator(query)
+         df=json_normalize(raw_indicators)
+         print("returnin all data")
+         print(df)
+         return df
     # Get the cleaned query keywords (the terms to look for)
     query_keywords = get_formatted_query(query)
 
