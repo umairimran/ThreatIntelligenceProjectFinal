@@ -300,29 +300,42 @@
     <div class="row">
         <h2 class="section-heading">Exploits</h2>
         <div class="table-responsive">
-            <table id="exploitTable" class="table table-bordered table-striped w-100">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Author</th>
-                        <th>CVE</th>
-                        <th>Description</th>
-                      
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for exploit in general_exploits %}
-                    <tr>
-                        <td><a href="#" style="pointer-events: none; color: inherit; text-decoration: underline;">{{ exploit['name'] }}</a></td>
-                        <td>{{ exploit['author'] }}</td>
-                        <td>{{ exploit['cve'] }}</td>
-                        <td>{{ exploit['description'] }}</td>
-                      
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% if general_exploits %}
+                <table id="exploitTable" class="table table-bordered table-striped w-100">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Author</th>
+                            <th>CVE</th>
+                            <th>Description</th>
+                            <th>Platform</th>
+                            <th>Port</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>URL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exploit in general_exploits %}
+                        <tr>
+                            <td><a href="{{ exploit['url'] }}" target="_blank" style="color: inherit; text-decoration: underline;">{{ exploit['name'] }}</a></td>
+                            <td>{{ exploit['author'] }}</td>
+                            <td>{{ exploit['cve'] }}</td>
+                            <td>{{ exploit['description'] if exploit['description'] else 'No description available' }}</td>
+                            <td>{{ exploit['platform'] }}</td>
+                            <td>{{ exploit['port'] if exploit['port'] else 'N/A' }}</td>
+                            <td>{{ exploit['type'] }}</td>
+                            <td>{{ exploit['date'] }}</td>
+                            <td><a href="{{ exploit['url'] }}" target="_blank" style="text-decoration: underline;">Click Here</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No exploits available to display.</p>
+            {% endif %}
         </div>
+        
         
     </div>
 </div>

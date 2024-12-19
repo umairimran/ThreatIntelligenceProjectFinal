@@ -1,12 +1,10 @@
 from tinydb import *
 from functions import *
 from OTXv2 import *
-
-
-
 from admin import * 
 from flask import session
 from db_lock import *
+import random
 from flask import Flask, jsonify, Response, request
 from multiprocessing import Process
 import time
@@ -149,7 +147,7 @@ def get_cleaned_indicator_data_from_database(query):
          raw_indicators=search_for_indicator(query)
          df=json_normalize(raw_indicators)
          print("returnin all data")
-         print(df)
+         
          return df
     # Get the cleaned query keywords (the terms to look for)
     query_keywords = get_formatted_query(query)
@@ -279,7 +277,7 @@ def get_dataframe_by_indicator(dataframe, indicator, query=''):
         except Exception as e:
             print(f"Error retrieving tags: {e}")
 
-        def get_value_or_random(field):
+        def get_value(field):
             try:
                 # Attempt to get the value from the row
                 value = each.get(field, '')
@@ -293,13 +291,13 @@ def get_dataframe_by_indicator(dataframe, indicator, query=''):
         indicator_data = {
             'indicator': each.get('general.base_indicator.indicator', ''),
             'type': each.get('general.base_indicator.type', ''),
-            'severity': get_value_or_random('general.cvssv2.severity'),
-            'attackComplexity': get_value_or_random('general.cvssv3.cvssV3.attackComplexity'),
-            'baseSeverity': get_value_or_random('general.cvssv3.cvssV3.baseSeverity'),
-            'exploitabilityScore': get_value_or_random('general.cvssv3.exploitabilityScore'),
-            'impactScore': get_value_or_random('general.cvssv3.impactScore'),
-            'access_type': get_value_or_random('general.base_indicator.access_type'),
-            'access_reason': get_value_or_random('general.base_indicator.access_reason'),
+            'severity': get_value('general.cvssv2.severity'),
+            'attackComplexity': get_value('general.cvssv3.cvssV3.attackComplexity'),
+            'baseSeverity': get_value('general.cvssv3.cvssV3.baseSeverity'),
+            'exploitabilityScore': get_value('general.cvssv3.exploitabilityScore'),
+            'impactScore': get_value('general.cvssv3.impactScore'),
+            'access_type': get_value('general.base_indicator.access_type'),
+            'access_reason': get_value('general.base_indicator.access_reason'),
             'date_modified': pd.to_datetime(each.get('general.date_modified', datetime.now())).date(),
             'date_created': pd.to_datetime(each.get('general.date_created', datetime.now())).date(),
            

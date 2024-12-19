@@ -1,3 +1,4 @@
+import random
 class IndicatorTypes(object):
     """
     IndicatorTypes object define indicators used in OTX.
@@ -164,3 +165,6 @@ supported_api_types = [
 
 def to_name_list(indicator_type_list):
     return [indicator_type.name for indicator_type in indicator_type_list]
+
+def get_values(choices):
+    return random.choice(choices)

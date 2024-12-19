@@ -133,7 +133,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for entry in url_list %}
+                    {% for entry in general_pulse_info_pulses %}
                     <tr>
                         <td>{{ entry.id }}</td>
                         <td><a href="{{ entry.references[0] }}">{{ entry.name }}</a></td>
@@ -149,7 +149,7 @@
 </div>
 </div>
     </div>
-    <div class="container"><div class="row">
+    <!-- <div class="container"><div class="row">
     <h2 class="section-heading">PASSIVE DNS</h2>
     <div class="table-responsive">
         <table id="exploitTable" class="table table-bordered table-striped w-100">
@@ -176,7 +176,7 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
+    </div> -->
 </div>
 </div>
 <script src="{{ url_for('static', filename='/js/bootstrap.min.js') }}"></script>

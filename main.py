@@ -1,24 +1,24 @@
-## Imports For Flask Application
 from flask import Flask
 from flask import request
 from flask import redirect
 from flask import render_template
-
 import os
-
 import time
+import random
+from collections import defaultdict
 from flask import Flask
 from threading import Thread, Event
 from multiprocessing import Process, Event
 from admin import *
+from services.IndicatorTypes import get_values
 from flask_caching import Cache
-# Configure the cache
-
 from flask import url_for,flash
 from flask import Flask, render_template, request, redirect, flash, session
 from flask import session
 from functions import *
 from tinyDb import *
+
+
 
 
 app=Flask(__name__)
@@ -29,12 +29,13 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 app.secret_key = '123456789'
 
 
+
+
 users = retrieve_users() 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    users = retrieve_users()  # Fetch the list of users from the database
+    users = retrieve_users()  
     if request.method == 'POST':
-        
         username = request.form['username']
         password = request.form['password']
         print("Username:",username)
@@ -42,31 +43,33 @@ def login():
         if username=='siteadmin' and password=='siteadmin':
             session['username'] = username
             return redirect(url_for('admin_page'))
-        # Create a dictionary for easy user lookup
         user_dict = {user[1]: {'password': user[2], 'email': user[3], 'system': user[4], 'service': user[5], 'indicator': user[6]} for user in users}
-        print(user_dict)
-        # Validate credentials
         if username in user_dict and user_dict[username]['password'] == password:
-            # Store user data in session after a successful login
             session['username'] = username  
             session['system'] = user_dict[username]['system']
             session['service'] = user_dict[username]['service']
             session['indicator'] = user_dict[username]['indicator']
             flash('Login successful!', 'success')
-            return redirect(url_for('search_indicators'))  # Redirect to the search indicators page
+            return redirect(url_for('search_indicators'))  
         else:
             flash('Invalid username or password. Please try again.', 'danger')
+    return render_template('login.html') 
 
-    return render_template('login.html')  # Render login form if GET request
+
+
+
 @app.route('/logout')
 def logout():
     # Clear the session to log out the user
     session.clear()
     flash('You have been logged out successfully.', 'info')
     return redirect(url_for('login')) 
+
+
+
+
 @app.route('/')
 def index():
-   
     global clear_session_flag
     if  clear_session_flag:
         session.clear()
@@ -76,115 +79,45 @@ def index():
         return redirect(url_for('search_indicators'))  # Redirect to search_indicators if logged in
     else:
         return redirect(url_for('login'))  # Redirect to login if not logged in
-@app.route('/pulses',methods=['GET','POST'])
-def pulses():
-    if request.method == 'POST':
-        print("Inside pulses post")
-        query = request.form['search_query']
-        pulses=get_pulses(query,100)
-        return render_template('pulses.html',pulses=pulses)
-    ## At This Point when the user profiling thing will come we would a
-    # addd the user setted env from the database and then we will search to make feed customizes
-    query="malware"
-    pulses=get_pulses(query,100)
-    return render_template('pulses.html',pulses=pulses)
-@app.route('/get_pulse_full_detail',methods=['GET','POST'])
-def get_pulse_full_detail():
-    if request.method == 'POST':
-        pulse_id = request.form['id']
-        pulse_details = get_pulse_detail(pulse_id)
-        pulse_indicators = get_pulse_indicators(pulse_id)
-        return render_template('pulse_detail.html',pulse_details=pulse_details, pulse_indicators=pulse_indicators)
-@app.route('/single_indicator', methods=['GET', 'POST'])
-def single_indicator():
-    if request.method == 'POST':
-        indicator_type = request.form['indicator_type']
-        pulse_id= request.form['indicator_name']
-        indicator_number = request.form['indicator_number']
-        print(indicator_type,pulse_id, indicator_number),
-        pulse_indicators=get_pulse_indicators(pulse_id)
     
-        print("_______________________________________\n")
-        matched_indicator_type = get_indicator_type(indicator_type)
-       
-        i=otx_object.get_indicator_details_full(DOMAIN, "aadvanced-ip-scanner.com")
-        i=json_normalize(i)
-        single_indicator={}
-        single_indicator['urls'] = int(i['url_list.limit'][0])
-        single_indicator['dns_count'] =int(i['passive_dns.count'][0])
-        single_indicator['id'] = int(i['general.base_indicator.id'][0])
-        single_indicator['country'] = i['geo.flag_title'][0]
-        single_indicator['indicator'] = i['general.base_indicator.indicator'][0]
-        single_indicator['type'] = i['general.base_indicator.type'][0]
-        single_indicator['asn'] = i['geo.asn'][0]
-        single_indicator['access_type'] = i['general.base_indicator.access_type'][0]
-        single_indicator['continent_code'] = i['geo.continent_code'][0]
-        single_indicator['external_link_1'] =i['general.whois'][0]
-        single_indicator['external_link_2'] = i['general.alexa'][0]
 
-        url_list_data = i["url_list.url_list"][0]
-    
-        ii = json_normalize(url_list_data)  # Normalize if data is present
-        urls_list = get_urls_list_of_indicator(ii)
-        
-        passive_dns_data = i["passive_dns.passive_dns"][0]
-           
-        passive_dns_df = json_normalize(passive_dns_data)  # Normalize if data is present
-        passive_dns_list = get_passive_dns_list_of_indicator(passive_dns_df)
-        print("Single Indicator",single_indicator)
-        print("URLS",urls_list)
-        print("PASSIVE DNS",passive_dns_list)
-        return render_template('single_indicators_details.html', single_indicator=single_indicator,urls_list=urls_list,passive_dns_list=passive_dns_list)
-     
-    return render_template('single_indicators_details.html',single_indicator=[],urls_list=[],passive_dns_list=[])
+
+
 
 @app.route('/cve', methods=['GET', 'POST'])
 def cve_page():
     if request.method == 'POST':
         indicator_type=request.form['base_indicator_type']
         indicator=request.form['indicator']
-        """
-        In this function, we will get the query-based results,
-        but here just for page demo, doing this.
-        This will appear after the page that will have all 
-        the list of indicators. When a user clicks on one, 
-        it will open a page and get the indicator from the cache
-        of the session and pass its info to the page.
-        """
         i = otx_object.get_indicator_details_full(indicator_type=get_indicator_type(indicator_type), indicator=indicator)
         df = json_normalize(i)
-        
-        # Define a helper function to safely get values from the DataFrame
         def safe_get(column_name):
             return df[column_name][0] if column_name in df.columns else ''
-    
-        # Function to generate random values for each specific CVSS V2 field
         def get_value(column_name):
             values = {
-                'general.cvssv2.acInsufInfo': random.choice([True, False]),
-                'general.cvssv2.cvssV2.accessComplexity': random.choice(['LOW', 'MEDIUM', 'HIGH']),
-                'general.cvssv2.cvssV2.accessVector': random.choice(['LOCAL', 'ADJACENT_NETWORK', 'NETWORK']),
-                'general.cvssv2.cvssV2.authentication': random.choice(['NONE', 'SINGLE', 'MULTIPLE']),
-                'general.cvssv2.cvssV2.availabilityImpact': random.choice(['NONE', 'PARTIAL', 'COMPLETE']),
+                'general.cvssv2.acInsufInfo': get_values([True, False]),
+                'general.cvssv2.cvssV2.accessComplexity': get_values(['LOW', 'MEDIUM', 'HIGH']),
+                'general.cvssv2.cvssV2.accessVector': get_values(['LOCAL', 'ADJACENT_NETWORK', 'NETWORK']),
+                'general.cvssv2.cvssV2.authentication': get_values(['NONE', 'SINGLE', 'MULTIPLE']),
+                'general.cvssv2.cvssV2.availabilityImpact': get_values(['NONE', 'PARTIAL', 'COMPLETE']),
                 'general.cvssv2.cvssV2.baseScore': round(random.uniform(0, 10), 1),
-                'general.cvssv2.cvssV2.confidentialityImpact': random.choice(['NONE', 'PARTIAL', 'COMPLETE']),
-                'general.cvssv2.cvssV2.integrityImpact': random.choice(['NONE', 'PARTIAL', 'COMPLETE']),
+                'general.cvssv2.cvssV2.confidentialityImpact': get_values(['NONE', 'PARTIAL', 'COMPLETE']),
+                'general.cvssv2.cvssV2.integrityImpact': get_values(['NONE', 'PARTIAL', 'COMPLETE']),
                 'general.cvssv2.cvssV2.version': '2.0',
                 'general.cvssv2.exploitabilityScore': round(random.uniform(0, 10), 1),
                 'general.cvssv2.impactScore': round(random.uniform(0, 10), 1),
-                'general.cvssv2.obtainAllPrivilege': random.choice([True, False]),
-                'general.cvssv2.obtainOtherPrivilege': random.choice([True, False]),
-                'general.cvssv2.obtainUserPrivilege': random.choice([True, False]),
-                'general.cvssv2.severity': random.choice(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
-                'general.cvssv2.userInteractionRequired': random.choice([True, False]),
+                'general.cvssv2.obtainAllPrivilege': get_values([True, False]),
+                'general.cvssv2.obtainOtherPrivilege': get_values([True, False]),
+                'general.cvssv2.obtainUserPrivilege': get_values([True, False]),
+                'general.cvssv2.severity': get_values(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+                'general.cvssv2.userInteractionRequired': get_values([True, False]),
             }
+
             return values.get(column_name, '')
-        
         general_sections = safe_get('general.sections')
         general_mitre_url = safe_get('general.mitre_url')
         general_nvd_url = safe_get('general.nvd_url')
         general_indicator = safe_get('general.indicator')
-
         general_type_title = safe_get('general.type_title')
         general_base_indicator_id = int(safe_get('general.base_indicator.id')) if safe_get('general.base_indicator.id') else 0
         general_base_indicator_type = safe_get('general.base_indicator.type')
@@ -206,7 +139,6 @@ def cve_page():
         general_cvss_confidentiality_impact = safe_get('general.cvss.Confidentiality-Impact')
         general_cvss_integrity_impact = safe_get('general.cvss.Integrity-Impact')
         general_cvss_vector_string = safe_get('general.cvss.vectorString')
-
         general_cvssv2_ac_insuf_info = get_value('general.cvssv2.acInsufInfo')
         general_cvssv2_access_complexity = get_value('general.cvssv2.cvssV2.accessComplexity')
         general_cvssv2_access_vector = get_value('general.cvssv2.cvssV2.accessVector')
@@ -236,26 +168,24 @@ def cve_page():
         general_cvssv3_version = safe_get('general.cvssv3.cvssV3.version')
         general_cvssv3_exploitability_score = safe_get('general.cvssv3.exploitabilityScore')
         general_cvssv3_impact_score = safe_get('general.cvssv3.impactScore')
-        
         general_configurations_cve_data_version = safe_get('general.configurations.CVE_data_version')
-       
         df['general.configurations.nodes'][0]
         general_configurations_nodes=[]
         for cpe in df['general.configurations.nodes'][0]:
             general_configurations_nodes.append(cpe['cpe_match'])
-            
         general_cwe = safe_get('general.cwe')
         general_products = safe_get('general.products')
         general_seen_wild = safe_get('general.seen_wild')
         general_references = safe_get('general.references')
-        print(general_references)
         general_description = safe_get('general.description')
         general_date_modified = safe_get('general.date_modified')
         general_date_created = safe_get('general.date_created')
-        general_exploits =  [generate_random_exploit() for _ in range(20)]
-        print(general_exploits)
+        general_exploits=[]
+        try:
+            general_exploits=df['general.exploits'][0]
+        except:
+            pass
         general_epss = safe_get('general.epss')
-        
         return render_template('indicator_full_detail.html', 
                                user_logged_in=session['username'],
                                general_sections=general_sections,
@@ -325,19 +255,6 @@ def cve_page():
                                general_epss=general_epss)
 
 
-from collections import defaultdict
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @app.route("/search_indicators", methods=['GET', 'POST'])
@@ -350,11 +267,9 @@ def search_indicators():
         session['service'] = user_dict[username]['service']
         session['indicator'] = user_dict[username]['indicator']
         query = " ".join([session['system'], session['service'], session['indicator']])
-        print("Getting of:", query)  # Query might be based on user preferences
+        print("Getting of:", query) 
         user_settings = query
-
     if request.method == 'POST':
-        # Get the search query from the search form
         query = request.form.get('search_query', '')
         print(f"Received POST request with search query: {query}")
         user_settings = " ".join([session['system'], session['service'], session['indicator']])
@@ -403,28 +318,11 @@ def search_indicators():
                     'cvssv3_impact_score': float(row.get('general.cvssv3.impactScore', 0.0)),
                     'category': row.get('category', 'Uncategorized')  # Assuming 'category' is the correct field name
                 })
-
-
-        # Directly pass the indicators to the template
-        print(indicators_df['category'])
         unique_categories = indicators_df['category'].unique()
-
     return render_template('indicators.html', indicators_list=indicators_list,unique_categories=unique_categories, user_settings=user_settings,user_logged_in=session['username'])
 
 
 
-
-
-
-
-
-
-
-
-
-@app.route('/test',methods=['GET','POST'])
-def test():
-    return render_template('indicators.html')
 
 @app.route('/refresh_database',methods=['GET','POST'])
 def refresh_database():
@@ -439,12 +337,17 @@ def admin_page():
     if request.method=='GET':
         return redirect(url_for('manage_users'))
 
+
+
+
 @app.route('/manage_users', methods=['GET', 'POST'])
 def manage_users():
     if request.method == 'GET':
         users = retrieve_users() 
     
         return render_template('manage_users.html', users=users)  # Pass users to the template
+
+
 
 
 @app.route('/edit_user', methods=['POST'])
@@ -474,6 +377,9 @@ def edit_user_endpoint():
     # Redirect or return a success message
     return redirect(url_for('manage_users'))
 
+
+
+
 @app.route('/delete_user', methods=['POST'])
 def delete_user_endpoint():
     """Endpoint to delete a user."""
@@ -484,6 +390,9 @@ def delete_user_endpoint():
     users = retrieve_users()  # Fetch the updated list of users
     # Redirect or return a success message
     return redirect(url_for('manage_users'))
+
+
+
 
 @app.route('/create_new_user', methods=['POST'])
 def create_user_endpoint():
@@ -509,7 +418,6 @@ def create_user_endpoint():
 
 
 
-
 @app.route('/search_domains', methods=["GET", "POST"])
 def search_domains():
     query = ''  # Default value for query
@@ -527,6 +435,8 @@ def search_domains():
                            search_query=query,user_logged_in=session['username'])
 
 
+
+
 @app.route('/search_urls', methods=["GET", "POST"])
 def search_urls():
     query = ''
@@ -540,6 +450,9 @@ def search_urls():
     # Pass the query and other data to the template
     return render_template('search_urls.html', indicators_list=urls, tags=tags, search_query=query,user_logged_in=session['username'])
 
+
+
+
 @app.route('/search_ip4', methods=["GET", "POST"])
 def search_ip4():
     query = ''
@@ -552,6 +465,9 @@ def search_ip4():
 
     # Pass the query, ipv4 results, and tags to the template
     return render_template('search_ip4.html', indicators_list=ipv4, tags=tags, search_query=query,user_logged_in=session['username'])
+
+
+
 
 @app.route('/search_hostnames', methods=["GET", "POST"])
 def search_hostnames():
@@ -567,19 +483,6 @@ def search_hostnames():
     return render_template('search_hostnames.html', indicators_list=hostnames, tags=tags, search_query=query,user_logged_in=session['username'])
 
 
-def get_joined_query():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    username=session['username']
-    users=retrieve_users()
-    user_dict = {user[1]: {'password': user[2], 'email': user[3], 'system': user[4], 'service': user[5], 'indicator': user[6]} for user in users}
-    session['system'] = user_dict[username]['system']
-    session['service'] = user_dict[username]['service']
-    session['indicator'] = user_dict[username]['indicator']
-    query = " ".join([session['system'], session['service'], session['indicator']])
-    return query
-       
-
 
 @app.route('/domain_full_detail', methods=['GET', 'POST'])
 def domain_full_detail():
@@ -590,11 +493,11 @@ def domain_full_detail():
         df = json_normalize(df)
 
         def safe_get(column_name):
-            """Return the value from DataFrame or a random number between 1-10 if it's empty."""
+          
             if column_name in df.columns and df[column_name][0] != '':
                 return df[column_name][0]
             else:
-                return random.randint(1, 10)  # Return a random number between 1-10
+                return random.randint(1, 10)  
 
         # Extract general information
         general_sections = safe_get('general.sections')
@@ -656,6 +559,10 @@ def domain_full_detail():
             passive_dns_count=passive_dns_count,
             passive_dns_data=passive_dns_data
         )
+    
+
+
+
 @app.route('/ip4_full_detail', methods=['GET', 'POST'])
 def ip4_full_detail():
     if request.method == 'POST':
@@ -666,11 +573,11 @@ def ip4_full_detail():
         df = json_normalize(df)
 
         def safe_get(column_name):
-            """Return the value from DataFrame or a random number between 1-10 if it's empty."""
+           
             if column_name in df.columns and df[column_name][0] != '':
                 return df[column_name][0]
             else:
-                return ' '  # Return a random number between 1-10
+                return ' ' 
 
         # Extract general information
         general_whois = safe_get('general.whois')
@@ -706,11 +613,11 @@ def ip4_full_detail():
         # Extract malware information
         malware_data = safe_get('malware.data')
         malware_size = safe_get('malware.size')
-
+        
         # Extract passive DNS information
         passive_dns_count = safe_get('passive_dns.count')
         passive_dns_data = safe_get('passive_dns.passive_dns')
-        print(passive_dns_data)
+        
 
         # Pass all variables to the HTML template
         return render_template('ipv4_full_details.html', 
@@ -750,23 +657,20 @@ def ip4_full_detail():
             passive_dns_data=passive_dns_data
         )
 
+
+
+
 @app.route('/url_full_detail', methods=['GET', 'POST'])
 def url_full_detail():
-   
     if request.method == 'POST':
         indicator = request.form['indicator']
         indicator_type = request.form['base_indicator_type']
         df = otx_object.get_indicator_details_full(URL, indicator)
         df = json_normalize(df)
-        print("URL FULL Dataframe is this :")
-        print(df.columns)
-        # Save the DataFrame to a CSV file
-       
         def safe_get(column_name):
             return df[column_name][0] if column_name in df.columns else ''
-        for each in df.columns:
-            print(each,df[each][0])
         # Extract general information
+        print(df.columns)
         general_sections = safe_get('general.sections')
         general_indicator = safe_get('general.indicator')
         general_type_title = safe_get('general.type_title')
@@ -783,12 +687,16 @@ def url_full_detail():
         general_whois = safe_get('general.whois')
 
         # Convert the first entry of the nested list to a dictionary
-        url_list = json_normalize(df['url_list.url_list'][0][0])
-        url_list = url_list.to_dict(orient='records')[0]
-        url_list = [url_list]
+        url_list = []
+        try:
+            url_list = json_normalize(df['url_list.url_list'][0][0])
+            url_list = url_list.to_dict(orient='records')[0]
+            url_list = [url_list]
+        except:
+            pass
         # Extract specific URL list information
-        # Extract specific URL list information with fallback to random values
-        url_list_city_data = get_random_geo_data()  # Get random geo data to use for fallbacks
+       
+        url_list_city_data = get_geo_data()  
 
         url_list_net_loc = safe_get('url_list.net_loc') or 'example.com'
         url_list_city = safe_get('url_list.city') or url_list_city_data['city']
@@ -844,19 +752,21 @@ def url_full_detail():
             url_list_flag_title=url_list_flag_title
         )
 
+
+
+
 def refresh_automatically(days):
     print("Refreshing Database")
     refresh(days)
     print(f"Data for {days} added to database.")
+
+
+
+
 def run_flask_app():
     app.run(port=5500)
-@app.route('/events')
-def events():
-    def generate():
-        while True:
-            time.sleep(1)  # Adjust as needed for checking frequency
-            yield f"data: {json.dumps({'refresh': True})}\n\n"
-    return Response(generate(), mimetype='text/event-stream')
+
+
 
 
 @app.route("/login_admin",methods=['GET','POST'])
@@ -872,11 +782,13 @@ def login_admin():
     return render_template('login.html')
 
 
+
+
 if __name__ == '__main__':
-    
     run_flask_app()
+    
     # processes = []
-    # days = [1, 2, 3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
+    # days = [i for i in range(1, 10)]
 
     # for each in days:
     #     process = Process(target=refresh_automatically, args=(each,))

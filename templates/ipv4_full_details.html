@@ -47,33 +47,53 @@
                 <span class="ref-label label-text">Reputation: </span>{{ general_reputation }}
             </p>
         </div>
+<!-- General Base Indicator Details -->
+<div class="details-container content">
+    <div class="data-block">
+        {% if general_base_indicator_id %}
+        <p>
+            <span class="ref-label label-text">Indicator ID: </span>{{ general_base_indicator_id }}
+        </p>
+        {% endif %}
 
-        <!-- General Base Indicator Details -->
-        <div class="details-container content">
-            <div class="data-block">
-                <p>
-                    <span class="ref-label label-text">Indicator ID: </span>{{ general_base_indicator_id }}
-                </p>
-                <p>
-                    <span class="ref-label label-text">General Indicator: </span>{{ general_base_indicator_indicator }}
-                </p>
-                <p>
-                    <span class="ref-label label-text">ASN: </span>{{ general_asn }}
-                </p>
-                <p>
-                    <span class="ref-label label-text">City: </span>{{ general_city }}
-                </p>
-                <p>
-                    <span class="ref-label label-text">Region: </span>{{ general_region }}
-                </p>
-                <p>
-                    <span class="ref-label label-text">Country Name: </span>{{ general_country_name }}
-                </p>
-                <p>
-                    <span class="ref-label label-text">Country Code: </span>{{ general_country_code }}
-                </p>
-            </div>
-        </div>
+        {% if general_base_indicator_indicator %}
+        <p>
+            <span class="ref-label label-text">General Indicator: </span>{{ general_base_indicator_indicator }}
+        </p>
+        {% endif %}
+
+        {% if general_asn %}
+        <p>
+            <span class="ref-label label-text">ASN: </span>{{ general_asn }}
+        </p>
+        {% endif %}
+
+        <!-- {% if general_city %}
+        <p>
+            <span class="ref-label label-text">City: </span>{{ general_city }}
+        </p>
+        {% endif %}
+
+        {% if general_region %}
+        <p>
+            <span class="ref-label label-text">Region: </span>{{ general_region }}
+        </p>
+        {% endif %}
+
+        {% if general_country_name %}
+        <p>
+            <span class="ref-label label-text">Country Name: </span>{{ general_country_name }}
+        </p>
+        {% endif %}
+
+        {% if general_country_code %}
+        <p>
+            <span class="ref-label label-text">Country Code: </span>{{ general_country_code }}
+        </p>
+        {% endif %} -->
+    </div>
+</div>
+
 
         <br><br>
 
@@ -143,7 +163,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for entry in url_list %}
+                    {% for entry in general_pulse_info_pulses %}
                     <tr>
                         <td>{{ entry.id }}</td>
                         <td><a href="{{ entry.references[0] }}">{{ entry.name }}</a></td>

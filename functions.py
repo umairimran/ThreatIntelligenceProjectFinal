@@ -5,7 +5,7 @@ from pandas import json_normalize
 from dotenv import load_dotenv
 import IndicatorTypes
 import sqlite3
-import random  
+from services.IndicatorTypes import get_values
 import pandas as pd
 from flask import flash
 from IndicatorTypes import *
@@ -17,44 +17,16 @@ load_dotenv()
 ## load the environment variables
 api =  os.getenv('API_KEY')
 otx_object = OTXv2(api)
-def get_pulses(query,limit=10):
-    # Get pulses from OTX
-    pulses=[]
-    one_year_ago = datetime.now() - timedelta(days=365)
-    timestamp = one_year_ago.strftime('%Y-%m-%dT%H:%M:%SZ')
-    pulses = otx_object.getsince( timestamp, limit=10000, max_page=10, max_items=1000)
-    df=json_normalize(pulses)
-    filtered_dataframe = df[df['tags'].apply(lambda x: query in x)]
-    for each in df['tags']:
-        print(each)
-    filtered_dataframe.reset_index(drop=True, inplace=True)
-    flattened_data = []
-    for index, row in filtered_dataframe.iterrows():
-        flattened_row = {
-            'id': row['id'],
-            'Name': row['name'],
-            'Author_name': row['author_name'],
-            'modified': pd.to_datetime(row['modified']).strftime('%Y-%m-%d %H:%M'),
-            'created': pd.to_datetime(row['created']).strftime('%Y-%m-%d %H:%M'),
-            'revision': row['revision'],
-        }
-        flattened_data.append(flattened_row)
-    return flattened_data
-def get_pulse_detail(pulse_id):
-    # Get pulse details from OTX
-    pulse_details = otx_object.get_pulse_details(pulse_id)
-    return pulse_details
-def get_pulse_indicators(pulse_id):
-    # Get pulse indicators from OTX
-    indicators = otx_object.get_pulse_indicators(pulse_id)
-    return indicators
+
+
 def safe_get(value):
     try:
         return int(value[0]) if isinstance(value, (list, np.ndarray)) else value
     except (IndexError, ValueError):
         return None  # or return '' if you prefer an empty string
+    
+
 def get_indicator_type(indicator_type):
-  
     print(indicator_type)
     if indicator_type=='domain':
         return DOMAIN
@@ -64,34 +36,14 @@ def get_indicator_type(indicator_type):
         return EMAIL
     if indicator_type=='URL':
         return URL
-    if indicator_type=='URI':
-        return URI
-    if indicator_type=='FileHash-MD5':
-        return FILE_HASH_MD5
-    if indicator_type=='FileHash-SHA1':
-        return FILE_HASH_SHA1
-    if indicator_type=='FileHash-SHA256':
-        return FILE_HASH_SHA256
-    if indicator_type=='FileHash-PEHASH':
-        return FILE_HASH_PEHASH
-    if indicator_type=='FileHash-IMPHASH':
-        return FILE_HASH_IMPHASH
-    if indicator_type=='CIDR':
-        return CIDR
-    if indicator_type=='FilePath':
-        return FILE_PATH
-    if indicator_type=='Mutex':
-        return MUTEX
     if indicator_type=='CVE':
         return CVE
-    if indicator_type=='YARA':
-        return YARA
     if indicator_type=='IPv4':
         return IPv4
-    if indicator_type=='IPv6':
-        return IPv6
     else:
         return None
+    
+
 def get_passive_dns_list_of_indicator(filtered_dataframe):
     flattened_data = []
     for index, row in filtered_dataframe.iterrows():
@@ -110,6 +62,8 @@ def get_passive_dns_list_of_indicator(filtered_dataframe):
         flattened_data.append(flattened_row)
     
     return flattened_data
+
+
 def get_urls_list_of_indicator(df):
     flattened_data = []
     
@@ -133,7 +87,6 @@ def get_urls_list_of_indicator(df):
 def get_indicators(modified_date, indicator_type):
 # Initialize the list to hold full indicator details
     indicators_full_details_list = []
-
         # Fetch all indicators modified since the provided date
     indicators = otx_object.get_all_indicators(indicator_types=indicator_type, modified_since=modified_date,limit=5,max_items=10)
     
@@ -211,40 +164,7 @@ def create_software_table():
     conn.commit()
     conn.close()
 
-
-# Function to generate a randomized exploit entry
-def generate_random_exploit():
-    authors = [
-        'Lance Biggerstaff', 'CANVAS', 'Metasploit', 'ExploitHub', 'Zero Day Initiative',
-        'CyberSecOps', 'RedTeam', 'HackerOne', 'EthicalHacks', 'SecurityLab', 'ExploitMon'
-    ]
-    cve_ids = [
-        'CVE-2021-4034', 'CVE-2022-1234', 'CVE-2023-5678', 'CVE-2024-9101',
-        'CVE-2020-6789', 'CVE-2019-4567', 'CVE-2022-8765', 'CVE-2020-7654',
-        'CVE-2018-2345', 'CVE-2017-8923', 'CVE-2016-1111'
-    ]
-    names = [
-        'PolicyKit-1 0.105-31 - Privilege Escalation', 'linux_pkexec_argc', 'Remote Code Execution Exploit',
-        'Buffer Overflow Vulnerability', 'Unauthorized Access Exploit', 'SQL Injection Attack Vector',
-        'Heap Overflow Vulnerability', 'Command Injection Exploit', 'Directory Traversal Exploit',
-        'Cross-Site Scripting Vulnerability', 'Denial of Service Attack Vector', 'Privilege Escalation Attack'
-    ]
-    platforms = ['linux', 'windows', 'macos', 'android', 'ios', 'unix', 'network', 'embedded', 'cloud', 'container']
-    types = ['local', 'remote', 'network', 'physical', 'logical', 'cloud']
-    ports = [22, 80, 443, 3306, 8080, 3389, 21, 23, 445, 53, 137, 138, 139, '']  # Common ports and empty option
-
-    return {
-        'author': random.choice(authors),
-        'cve': random.choice(cve_ids),
-        'date': datetime.strptime(f"{random.randint(2000, 2023)}-{random.randint(1, 12):02d}-{random.randint(1, 28):02d}", "%Y-%m-%d").strftime("%Y-%m-%d"),
-        'name': random.choice(names),
-        'platform': random.choice(platforms),
-        'port': str(random.choice(ports)),
-        'type': random.choice(types),
-        'url': f"https://example.com/exploit/{random.randint(10000, 99999)}"
-    }
-
-def get_random_geo_data():
+def get_geo_data():
     # Example realistic data
     cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]
     regions = ["NY", "CA", "IL", "TX", "AZ"]
@@ -264,24 +184,23 @@ def get_random_geo_data():
     flag_titles = ["Flag of the USA", "Flag of the USA", "Flag of the USA", "Flag of the USA", "Flag of the USA"]
 
     return {
-        "city": random.choice(cities),
-        "region": random.choice(regions),
-        "continent_code": random.choice(continents),
-        "country_code3": random.choice(country_codes3),
-        "country_code2": random.choice(country_codes2),
-        "subdivision": random.choice(subdivisions),
-        "latitude": random.choice(latitudes),
-        "longitude": random.choice(longitudes),
-        "postal_code": random.choice(postal_codes),
-        "accuracy_radius": random.choice(accuracy_radii),
-        "country_code": random.choice(country_codes),
-        "country_name": random.choice(country_names),
-        "dma_code": random.choice(dma_codes),
-        "charset": random.choice(charsets),
-        "area_code": random.choice(area_codes),
-        "flag_title": random.choice(flag_titles)
-    }
-
+            "city": get_values(cities),
+            "region": get_values(regions),
+            "continent_code": get_values(continents),
+            "country_code3": get_values(country_codes3),
+            "country_code2": get_values(country_codes2),
+            "subdivision": get_values(subdivisions),
+            "latitude": get_values(latitudes),
+            "longitude": get_values(longitudes),
+            "postal_code": get_values(postal_codes),
+            "accuracy_radius": get_values(accuracy_radii),
+            "country_code": get_values(country_codes),
+            "country_name": get_values(country_names),
+            "dma_code": get_values(dma_codes),
+            "charset": get_values(charsets),
+            "area_code": get_values(area_codes),
+            "flag_title": get_values(flag_titles)
+        }
 
 
 
