@@ -30,16 +30,15 @@ def insert_indicators_in_table(modified_date, indicator_type):
     """
     # Retrieve full details of indicators based on the modified date and type
     indicator_types = [
-         IPv4,
-       
-    DOMAIN,
-    HOSTNAME,
-    URL,
-   
-    CVE 
+        CVE,
+        IPv4,
+        DOMAIN,
+        HOSTNAME,
+        URL,
     ]
     
     for each in indicator_types:
+        print(modified_date, each)
         indicators_full_details = get_indicators(modified_date, [each])
 
         # Get all existing indicators from the database
@@ -279,9 +278,9 @@ def get_dataframe_by_indicator(dataframe, indicator, query=''):
 
         def get_value(field):
             try:
-                # Attempt to get the value from the row
+              
                 value = each.get(field, '')
-                # Return a random number if the value is NaN or empty
+                
                 return round(random.uniform(1, 10), 2) if pd.isna(value) or value == '' else value
             except Exception as e:
                 print(f"Error retrieving value for field '{field}': {e}")
@@ -323,5 +322,10 @@ def extract_tags_by_indicator(indicator):
         # Flatten the list and remove duplicates
         unique_tags = list(set(tag for sublist in tags for tag in sublist))
     return unique_tags
+
+
+
+
+
 
 

@@ -76,6 +76,7 @@ def index():
         clear_session_flag=False
     if 'username' in session:  # Check if the user is logged in
         print("Logged in")
+
         return redirect(url_for('search_indicators'))  # Redirect to search_indicators if logged in
     else:
         return redirect(url_for('login'))  # Redirect to login if not logged in
@@ -267,7 +268,8 @@ def search_indicators():
         session['service'] = user_dict[username]['service']
         session['indicator'] = user_dict[username]['indicator']
         query = " ".join([session['system'], session['service'], session['indicator']])
-        print("Getting of:", query) 
+        print("Getting of:", query)
+        
         user_settings = query
     if request.method == 'POST':
         query = request.form.get('search_query', '')
@@ -534,6 +536,8 @@ def domain_full_detail():
         passive_dns_count = safe_get('passive_dns.count')
         passive_dns_data = safe_get('passive_dns.passive_dns')
         url_list = [url_list]
+        print(url_list)
+        print(passive_dns_data)
         # Pass all variables to the HTML template
         return render_template('domain_full_details.html', 
                                user_logged_in=session['username'],
@@ -669,8 +673,7 @@ def url_full_detail():
         df = json_normalize(df)
         def safe_get(column_name):
             return df[column_name][0] if column_name in df.columns else ''
-        # Extract general information
-        print(df.columns)
+
         general_sections = safe_get('general.sections')
         general_indicator = safe_get('general.indicator')
         general_type_title = safe_get('general.type_title')
@@ -785,24 +788,25 @@ def login_admin():
 
 
 if __name__ == '__main__':
-    run_flask_app()
+ 
     
-    # processes = []
-    # days = [i for i in range(1, 10)]
+    processes = []
+    days = [i for i in range(1,10)]
+    print(days)
 
-    # for each in days:
-    #     process = Process(target=refresh_automatically, args=(each,))
-    #     process.start()
-    #     processes.append(process)
+    for each in days:
+        process = Process(target=refresh_automatically, args=(each,))
+        process.start()
+        processes.append(process)
 
-    # flask_process = Process(target=run_flask_app)
-    # flask_process.start()
+    flask_process = Process(target=run_flask_app)
+    flask_process.start()
 
-    # try:
-    #     time.sleep(10000)  # Run threads for 300 seconds
-    #     stop_event.set()  # Signal threads to stop
-    # finally:
-    #     for process in processes:
-    #         process.join()  # Wait for threads to complete
+    try:
+        time.sleep(10000) 
+        stop_event.set() 
+    finally:
+        for process in processes:
+            process.join() 
 
-    #     print("Background processes have been stopped, but Flask continues to run.")
+        print("Background processes have been stopped, but Flask continues to run.")
